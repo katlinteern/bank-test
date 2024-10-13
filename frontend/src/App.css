@@ -1,38 +1,37 @@
-.App {
-  text-align: center;
+/* App.css */
+
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif; /* Clean and professional font */
+  background-color: #eaeaea !important; /* Soft light background for a modern touch */
+  margin: 0;
+  padding: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+/* Responsive Design */
+@media (max-width: 768px) {
+  .navbar-vertical {
+    width: 100%; /* Full width on mobile */
+    height: auto; /* Automatic height */
+    position: relative; /* Position relative for mobile */
+  }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+  .main-content {
+    margin-left: 0; /* Remove left margin on mobile */
+    padding: 20px; /* Reduce padding on mobile */
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+/* Buttons */
+.btn-primary {
+  background-color: #0056b3; /* Bright blue buttons */
+  border-color: #0056b3; /* Border color */
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  font-size: 16px;
+  border-radius: 5px; /* Rounded edges */
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.btn-primary:hover {
+  background-color: #003d7a; /* Darker blue on hover */
+  border-color: #003d7a; /* Matching border color on hover */
 }

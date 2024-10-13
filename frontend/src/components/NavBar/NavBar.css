@@ -1,0 +1,62 @@
+/* NavBar.css */
+
+/* Vertical Navbar */
+.navbar-vertical {
+    height: 100vh; /* Full height */
+    background-color: #d7d7d7; /* Lighter gray for a fresh look */
+    padding-top: 40px; /* Padding at the top */
+    position: fixed; /* Fixed to the left side */
+    left: 0;
+    width: 220px; /* Width for the vertical navbar */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Light drop shadow effect */
+}
+
+.navbar-vertical .navbar-brand {
+    color: #333333; /* Dark gray for the brand */
+    font-size: 24px; /* Slightly larger for prominence */
+    font-weight: bold;
+    padding-left: 20px;
+    margin-bottom: 40px; /* Space below brand */
+}
+
+.navbar-vertical .nav-item {
+    margin: 20px 0; /* More spacing between links */
+}
+
+.navbar-vertical .nav-link {
+    display: block;
+    color: #555555; /* Darker gray for nav links */
+    font-size: 18px;
+    padding: 12px 20px;
+    border-radius: 5px; /* Rounded edges for a modern look */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navbar-vertical .nav-link:hover {
+    background-color: #d9d9d9; /* Slightly darker gray on hover */
+    color: #000000; /* Black text for contrast on hover */
+}
+
+.navbar-vertical .nav-link.active {
+    background-color: #b2b2b2; /* Medium gray for active links */
+    font-weight: bold;
+    color: #000000; /* Black text for visibility */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-vertical {
+        width: 100%; /* Full width on mobile */
+        height: auto; /* Automatic height */
+        position: relative; /* Position relative for mobile */
+    }
+
+    .navbar-vertical .navbar-brand {
+        text-align: center; /* Center brand on mobile */
+        margin-bottom: 20px; /* Less space below brand */
+    }
+
+    .navbar-vertical .nav-item {
+        margin: 10px 0; /* Reduced spacing on mobile */
+    }
+}

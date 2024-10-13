@@ -2,6 +2,7 @@ import React, {useContext, useRef} from "react";
 import {createProduct} from "../services/ApiService";
 import {useNavigate} from'react-router-dom';
 import {ProductContext} from "../context/ProductContext";
+import { NavLink } from 'react-router-dom';
 
 export default function CreateProductForm() {
 
@@ -37,6 +38,14 @@ export default function CreateProductForm() {
 
   return(
     <form>
+      {/* Breadcrumbs */}
+      <nav aria-label="breadcrumb">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item">
+            <NavLink to="/">Products</NavLink>
+          </li>
+        </ol>
+      </nav>
       <div className="mb-3 mt-5">
         <label htmlFor="title" className="form-label">Title</label>
         <input ref={titleRef} type="text" className="form-control" id="title" aria-describedby="titleHelp" />
