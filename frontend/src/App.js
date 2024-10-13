@@ -6,7 +6,6 @@ import NavBar from "./components/NavBar";
 import ProductList from "./components/ProductList/ProductList";
 import Products from "./components/Products";
 import { ProductListProvider } from "./context/ProductContext";
-import ProductDetail from "./components/ProductDetail";
 
 function App() {
   return (
@@ -19,7 +18,6 @@ function App() {
             <Route path="/new" element={<CreateProductForm />} />
             <Route path="/" element={<Products />}>
               <Route index element={<ProductList />} />
-              <Route path=":id" element={<ProductDetail />} />
             </Route>
           </Routes>
         </div>

@@ -6,13 +6,12 @@ import {NavLink} from "react-router-dom";
 
 export default function ProductList() {
 
-  const { products, updateProducts } = useContext(ProductContext);
+  const { products } = useContext(ProductContext);
 
   useEffect(() => {
     async function fetchData() {
       try {
         const products = await getProducts();
-        updateProducts(products);
       } catch (error) {
         console.error('Error fetching products:', error);
       }
@@ -37,7 +36,6 @@ export default function ProductList() {
           <th scope="col">Title</th>
           <th scope="col">Price</th>
           <th scope="col">Quantity</th>
-          <th scope="col">Actions</th>
         </tr>
         </thead>
         <tbody>

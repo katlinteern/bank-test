@@ -6,16 +6,8 @@ export const ProductListProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [product, setProduct] = useState({});
 
-  const updateProducts = (products) => {
-    setProducts(products)
-  }
-
   const addProduct = (product) => {
     setProducts([... products, product]);
-  }
-
-  const updateProduct = (product) => {
-    setProduct(product);
   }
 
   const removeProductById = (id) => {
@@ -24,7 +16,7 @@ export const ProductListProvider = ({ children }) => {
   }
 
   return (
-    <ProductContext.Provider value={{ products, product, updateProducts, updateProduct, removeProductById, addProduct }}>
+    <ProductContext.Provider value={{ products, product, removeProductById, addProduct }}>
       {children}
     </ProductContext.Provider>
   );
