@@ -3,7 +3,7 @@ import { getPortfolioProfitablity } from '../../services/ApiService';
 import './InvestmentSummary.css';
 
 export default function InvestmentSummary() {
-  const [ portfolio, setPortfolio ] = useState(null);
+  const [portfolio, setPortfolio] = useState(null);
 
   useEffect(() => { 
       async function fetchData() {
@@ -19,14 +19,20 @@ export default function InvestmentSummary() {
   }, []);  
 
   if (!portfolio) {
-    return <div>Loading...</div>;
+    return (
+      <div className="summary-container">
+        <h2>Investment Summary</h2>  
+        <div className="loading-spinner-container">
+          <div className="loading-spinner"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div>
       <div className="summary-container">
         <h2>Investment Summary</h2>
-        {/* Safely access totalProfitability */}
         <p>Your current investments have a total return of {portfolio.data?.totalProfitability}</p>
         <p>Manage your investments effectively: add, edit, or remove investments from the list below.</p>
       </div>

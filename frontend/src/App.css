@@ -50,3 +50,26 @@ body {
   color: white;
   box-shadow: none; /* Remove shadows for a cleaner look */
 }
+
+/* Loading Spinner Container */
+.loading-spinner-container {
+  position: absolute; /* Absolutely positions inside the relative container */
+  top: 50%; /* Moves the spinner container down to 50% of the parent's height */
+  left: 50%; /* Moves the spinner container to the horizontal center */
+  transform: translate(-50%, -50%); /* Adjusts the position to center the spinner exactly */
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1); /* Thinner border for subtle appearance */
+  border-top: 4px solid #cbcbcb; /* Blue color for the top, still visible but not too bright */
+  border-radius: 50%;
+  width: 30px; /* Smaller size for the spinner */
+  height: 30px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
