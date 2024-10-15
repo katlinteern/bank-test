@@ -21,7 +21,7 @@ export default function InvestmentSummary() {
   if (!portfolio) {
     return (
       <div className="summary-container">
-        <h2>Investment Summary</h2>  
+        <h2 className="summary-title">Investment Summary</h2>
         <div className="loading-spinner-container">
           <div className="loading-spinner"></div>
         </div>
@@ -32,9 +32,25 @@ export default function InvestmentSummary() {
   return (
     <div>
       <div className="summary-container">
-        <h2>Investment Summary</h2>
-        <p>Your current investments have a total return of {portfolio.data?.totalProfitability}</p>
-        <p>Manage your investments effectively: add, edit, or remove investments from the list below.</p>
+        <h2 className="summary-title">Investment Summary</h2>
+        <div className="summary-cards">
+          <div className="summary-card">
+            <div className="card-icon">&#128181;</div> {/* Dollar sign icon */}
+            <p>Portfolio value: <strong>{portfolio.totalValue}</strong></p>
+          </div>
+          <div className="summary-card">
+            <div className="card-icon">&#128176;</div> {/* Money bag icon */}
+            <p>Total profitability: <strong>{portfolio.totalProfitability}</strong></p>
+          </div>
+          <div className="summary-card">
+            <div className="card-icon">&#128200;</div> {/* Bar chart icon */}
+            <p>Profitability percentage: <strong>{portfolio.profitabilityPercentage}%</strong></p>
+          </div>
+          <div className="summary-card">
+            <div className="card-icon">&#128202;</div> {/* List icon */}
+            <p>Number of investments: <strong>{portfolio.numberOfInvestments}</strong></p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,21 +1,63 @@
 /* Summary Section */
 .summary-container {
-  background-color: #f8f9fa; /* Light background for summary */
-  border: 1px solid #c0c0c0; /* Light gray border */
-  border-radius: 10px; /* Rounded edges for modern touch */
-  padding: 20px;
-  margin-bottom: 30px; /* Space between summary and table */
-  box-shadow: none; /* Remove shadows for uniformity */
-  min-height: 200px; /* Ensures the container height stays consistent */
-  position: relative; /* Allows absolute positioning inside */
+  background-color: #f8f7f7; 
+  border: 1px solid #e0e0e0;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px; 
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+  min-height: 320px; 
+  position: relative; 
 }
 
-/* Summary Section Headings */
-.summary-container h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
+.summary-title {
+  font-size: 26px;
+  margin-bottom: 38px;
   font-weight: 700;
-  color: #003366; /* Use dark blue for consistency */
+  color: #003366; 
+  text-align: left; 
 }
 
+/* Summary Cards Container */
+.summary-cards {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start; 
+  gap: 20px; 
+}
+
+/* Individual Summary Card */
+.summary-card {
+  background-color: #fffdfd; 
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  width: 220px;
+  height: 160px;
+}
+
+/* Hover effect for cards */
+.summary-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Icon */
+.card-icon {
+  font-size: 40px; 
+  color: #3498db; 
+  margin-bottom: 10px;
+}
+
+/* Card Text */
+.summary-card p {
+  font-size: 16px;
+  color: #333; 
+}
+
+.summary-card strong {
+  color: #003366; 
+}
 
