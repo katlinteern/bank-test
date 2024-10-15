@@ -3,7 +3,7 @@ package com.example.dto.response;
 import lombok.Data;
 
 /**
- * Data Transfer Object for Transaction response
+ * Data Transfer Object for Investment response
  */
 @Data
 public class InvestmentResponse {

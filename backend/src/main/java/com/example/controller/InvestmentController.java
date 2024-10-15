@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.dto.response.InvestmentResponse;
+import com.example.dto.response.PortfolioProfitabilityResponse;
 import com.example.service.InvestmentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import org.slf4j.LoggerFactory;
 @RestController
 @RequestMapping("/api/investments")
 public class InvestmentController {
-    private static final Logger logger = LoggerFactory.getLogger(InvestmentController.class);
+    Logger logger = LoggerFactory.getLogger(InvestmentController.class);
 
     @Autowired
     private InvestmentService investmentService;
@@ -25,6 +26,15 @@ public class InvestmentController {
         logger.info("Fetching investments for user ID: {}", userId);
         
         List<InvestmentResponse> investments = investmentService.getInvestmentsByUserId(userId);
+
+        return ResponseEntity.ok(investments);
+    }
+
+    @GetMapping("/profitability/")
+    public ResponseEntity<PortfolioProfitabilityResponse> getPortfolioProfitability() {
+        logger.info("Fetching profitability");
+
+        PortfolioProfitabilityResponse investments = investmentService.getPortfolioProfitability();
 
         return ResponseEntity.ok(investments);
     }
