@@ -1,10 +1,14 @@
 package com.example.repository;
 
 import com.example.model.Investment;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
 public interface InvestmentRepository extends JpaRepository<Investment, Long> {
-    List<Investment> findByUserId(Long userId);
+    List<Investment> findAllByUserId(Long userId);
+
 }
