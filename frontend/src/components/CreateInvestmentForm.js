@@ -1,34 +1,34 @@
 import React, {useContext, useRef} from "react";
-import {createProduct} from "../services/ApiService";
+import {createInvestment} from "../services/ApiService";
 import {useNavigate} from'react-router-dom';
-import {ProductContext} from "../context/ProductContext";
+import {InvestmentContext} from "../context/InvestmentContext";
 import { NavLink } from 'react-router-dom';
 
-export default function CreateProductForm() {
+export default function CreateInvestmentForm() {
 
   const navigate = useNavigate();
   const titleRef = useRef();
   const priceRef = useRef();
   const quantityRef = useRef();
 
-  const {addProduct} = useContext(ProductContext);
+  const {addInvestment} = useContext(InvestmentContext);
 
   async function add(target) {
     target.preventDefault();
 
     try {
 
-      const newProduct = {
+      const newInvestment = {
         title: titleRef.current.value,
         price: priceRef.current.value,
         quantity: quantityRef.current.value
       };
 
-      console.log(newProduct)
+      console.log(newInvestment)
 
-      const response = await createProduct(newProduct);
+      const response = await createInvestment(newInvestment);
       console.log(response)
-      addProduct(response);
+      addInvestment(response);
       navigate(`/${response.id}`);
 
     } catch (error) {
@@ -42,14 +42,14 @@ export default function CreateProductForm() {
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item">
-            <NavLink to="/">Products</NavLink>
+            <NavLink to="/">Investments</NavLink>
           </li>
         </ol>
       </nav>
       <div className="mb-3 mt-5">
         <label htmlFor="title" className="form-label">Title</label>
         <input ref={titleRef} type="text" className="form-control" id="title" aria-describedby="titleHelp" />
-        <div id="titleHelp" className="form-text">Input the product title here.</div>
+        <div id="titleHelp" className="form-text">Input the investment title here.</div>
       </div>
       <div className="mb-3">
 

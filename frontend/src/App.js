@@ -1,16 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
-import CreateProductForm from './components/CreateProductForm';
+import CreateInvestmentForm from './components/CreateInvestmentForm';
 import NavBar from "./components/NavBar/NavBar";
-import ProductList from "./components/ProductList/ProductList";
-import Products from "./components/Products";
-import { ProductListProvider } from "./context/ProductContext";
+import InvestmentList from "./components/InvestmentList/InvestmentList";
+import Investments from "./components/Investments";
+import { InvestmentListProvider } from "./context/InvestmentContext";
 
 function App() {
   return (
     <Router>
-      <ProductListProvider>
+      <InvestmentListProvider>
         <div className="container-fluid">
           <div className="row">
             {/* Left-hand side: Vertical Navbar */}
@@ -24,15 +24,15 @@ function App() {
                 <h2>My portfolio</h2>
               </div>
               <Routes>
-                <Route path="/new" element={<CreateProductForm />} />
-                <Route path="/" element={<Products />}>
-                  <Route index element={<ProductList />} />
+                <Route path="/new" element={<CreateInvestmentForm />} />
+                <Route path="/" element={<Investments />}>
+                  <Route index element={<InvestmentList />} />
                 </Route>
               </Routes>
             </div>
           </div>
         </div>
-      </ProductListProvider>
+      </InvestmentListProvider>
     </Router>
   );
 }

@@ -1,20 +1,20 @@
 import React, { useContext, useEffect } from 'react';
-import ProductTableRow from '../ProductTableRow';
-import { ProductContext } from '../../context/ProductContext';
-import { getProducts } from '../../services/ApiService';
+import InvestmentTableRow from '../InvestmentTableRow';
+import { InvestmentContext } from '../../context/InvestmentContext';
+import { getInvestmentsByUserId } from '../../services/ApiService';
 import { NavLink } from 'react-router-dom';
-import './ProductList.css';
+import './InvestmentList.css';
 
-export default function ProductList() {
-  const { products, updateProducts } = useContext(ProductContext);
+export default function InvestmentList() {
+  const { investments, updateInvestments } = useContext(InvestmentContext);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const products = await getProducts();
-        updateProducts(products);
+        const investments = await getInvestmentsByUserId();
+        updateInvestments(investments);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('Error fetching investments:', error);
       }
     }
 
@@ -26,7 +26,7 @@ export default function ProductList() {
       <div className="summary-container">
         <h2>Investment Summary</h2>
         <p>Your current investments have a total return of $XX,XXX.</p>
-        <p>Manage your investments effectively: add, edit, or remove products from the list below.</p>
+        <p>Manage your investments effectively: add, edit, or remove investments from the list below.</p>
       </div>
 
       {/* Wrapper for the button to align it to the right */}
@@ -48,8 +48,8 @@ export default function ProductList() {
           </tr>
         </thead>
         <tbody>
-          {products.map(({ id, ...product }) => (
-            <ProductTableRow key={id} {...product} />
+          {investments.map(({ id, ...investment }) => (
+            <InvestmentTableRow key={id} {...investment} />
           ))}
         </tbody>
       </table>

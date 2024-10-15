@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-export default function Products () {
+export default function Investments () {
 
   return(
     <Outlet />
