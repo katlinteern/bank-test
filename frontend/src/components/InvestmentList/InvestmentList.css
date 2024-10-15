@@ -1,49 +1,5 @@
 /* InvestmentList.css */
 
-/* Header Section */
-.header-container {
-    background-color: #003366; /* Rich dark blue for the header */
-    padding: 30px;
-    border-radius: 10px;
-    margin-bottom: 30px; /* Space below the summary area */
-    color: white;
-    box-shadow: none; /* Remove shadows for a cleaner look */
-  }
-  
-  /* Summary Section */
-  .summary-container {
-    background-color: #f8f9fa; /* Light background for summary */
-    border: 1px solid #c0c0c0; /* Light gray border */
-    border-radius: 10px; /* Rounded edges for modern touch */
-    padding: 20px;
-    margin-bottom: 30px; /* Space between summary and table */
-    box-shadow: none; /* Remove shadows for uniformity */
-  }
-  
-  /* Summary Section Headings */
-  .summary-container h2 {
-    font-size: 24px;
-    margin-bottom: 10px;
-    font-weight: 700;
-    color: #003366; /* Use dark blue for consistency */
-  }
-  
-  /* Summary Section Text */
-  .summary-container p {
-    font-size: 16px;
-    color: #333; /* Dark gray for better readability */
-  }
-  
-  /* Main Content Area */
-  .main-content {
-    margin-left: 240px; /* Leave space for the navbar */
-    padding: 40px;
-    background-color: #ffffff; /* Clean white background for content */
-    min-height: 100vh; /* Full height coverage */
-    border-radius: 10px; /* Round edges for a softer appearance */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-  }
-  
   /* Table Styles */
   .table {
     background-color: #ffffff; /* White background for the table */

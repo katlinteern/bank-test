@@ -1,9 +1,14 @@
-import { Outlet } from "react-router-dom";
+import React from 'react';
+import InvestmentSummary from './InvestmentSummary/InvestmentSummary'; 
+import InvestmentList from './InvestmentList/InvestmentList'; 
 
-export default function Investments () {
-
-  return(
-    <Outlet />
+const Investments = () => {
+  return (
+    <div>
+      <InvestmentSummary /> 
+      <InvestmentList /> 
+    </div>
   );
+};
 
-}
+export default Investments;

@@ -9,26 +9,22 @@ export default function InvestmentList() {
   const { investments, updateInvestments } = useContext(InvestmentContext);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const investments = await getInvestmentsByUserId();
-        updateInvestments(investments);
-      } catch (error) {
-        console.error('Error fetching investments:', error);
+    if (investments.length === 0) {  
+      async function fetchData() {
+        try {
+          const investments = await getInvestmentsByUserId();
+          updateInvestments(investments);
+        } catch (error) {
+          console.error('Error fetching investments:', error);
+        }
       }
-    }
 
-    fetchData();
-  }, []);
+      fetchData();
+    }
+  }, [updateInvestments]);  
 
   return (
     <div>
-      <div className="summary-container">
-        <h2>Investment Summary</h2>
-        <p>Your current investments have a total return of $XX,XXX.</p>
-        <p>Manage your investments effectively: add, edit, or remove investments from the list below.</p>
-      </div>
-
       {/* Wrapper for the button to align it to the right */}
       <div className="button-container">
         <NavLink className="btn btn-primary" to="/new">Add</NavLink>

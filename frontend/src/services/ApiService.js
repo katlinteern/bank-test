@@ -32,3 +32,13 @@ export const getInvestmentsByUserId = async () => {
     throw error;
   }
 }
+
+export const getPortfolioProfitablity = async () => {
+  try {
+    const response = await axios.get(`${apiUrl}/profitability/`);
+    console.log(response, "resp");
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
