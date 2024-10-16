@@ -12,7 +12,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.Period;
 import java.util.Random;
 
 @Component
@@ -69,7 +70,7 @@ public class DataGenerator implements CommandLineRunner {
             transaction.setQuantity(random.nextInt(1, 100));
             transaction.setPrice(BigDecimal.valueOf(random.nextDouble(20.0, 200.0)));
             transaction.setFee(BigDecimal.valueOf(random.nextDouble(0.5, 5.0)));
-            transaction.setTimestamp(LocalDateTime.now().minusDays(random.nextInt(1, 365)));
+            transaction.setTimestamp(Instant.now().minus(Period.ofDays(random.nextInt(1, 365))));
             transaction.setInvestment(investment);
             transactionRepository.save(transaction);
         }
@@ -83,14 +84,14 @@ public class DataGenerator implements CommandLineRunner {
             Dividend dividend = new Dividend();
             dividend.setAmount(BigDecimal.valueOf(random.nextDouble(1.0, 10.0)));  
             dividend.setInvestment(investment);
-            dividend.setTimestamp(LocalDateTime.now().minusDays(random.nextInt(1, 365)));  
+            dividend.setTimestamp(Instant.now().minus(Period.ofDays(random.nextInt(1, 365))));  
             dividendRepository.save(dividend);
         } else if (investmentName.startsWith("Fund")) {
             for (int i = 0; i < 4; i++) {
                 Dividend dividend = new Dividend();
                 dividend.setAmount(BigDecimal.valueOf(random.nextDouble(0.5, 5.0)));  
                 dividend.setInvestment(investment);
-                dividend.setTimestamp(LocalDateTime.now().minusDays(random.nextInt(1, 365))); 
+                dividend.setTimestamp(Instant.now().minus(Period.ofDays(random.nextInt(1, 365)))); 
                 dividendRepository.save(dividend);
             }
         }

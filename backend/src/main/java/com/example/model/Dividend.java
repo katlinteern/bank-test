@@ -3,7 +3,7 @@ package com.example.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "dividends")
@@ -12,12 +12,14 @@ public class Dividend {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private BigDecimal amount;
 
-    private LocalDateTime timestamp;
+    @Column(nullable = false)
+    private Instant timestamp;
 
-    @ManyToOne
-    @JoinColumn(name = "investment_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "investment_id", referencedColumnName = "id", nullable = false)
     private Investment investment;
 
     public Long getId() {
@@ -36,11 +38,11 @@ public class Dividend {
         this.amount = amount;
     }
 
-    public LocalDateTime getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 

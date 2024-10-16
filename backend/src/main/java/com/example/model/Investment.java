@@ -2,8 +2,8 @@ package com.example.model;
 
 import jakarta.persistence.*;
 
-import java.util.Set;
-
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "investments")
@@ -12,16 +12,23 @@ public class Investment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private Long userId;
 
-    private String name; 
+    @Column(length = 200, nullable = false)
+    private String name;
 
-    @OneToMany(mappedBy = "investment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Transaction> transactions;
+    @OneToMany(mappedBy = "investment", cascade = CascadeType.PERSIST) // Avoid removing transactions on investment removal
+    private List<Transaction> transactions = new ArrayList<>(); // Changed to List for order preservation
 
-    @OneToMany(mappedBy = "investment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Dividend> dividends;
+    @OneToMany(mappedBy = "investment", cascade = CascadeType.PERSIST)
+    private List<Dividend> dividends = new ArrayList<>(); // Changed to List for consistency
 
+    // Default constructor
+    public Investment() {
+    }
+
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -46,19 +53,19 @@ public class Investment {
         this.name = name;
     }
 
-    public Set<Transaction> getTransactions() {
+    public List<Transaction> getTransactions() {
         return transactions;
     }
 
-    public void setTransactions(Set<Transaction> transactions) {
+    public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
     }
 
-    public Set<Dividend> getDividends() {
+    public List<Dividend> getDividends() {
         return dividends;
     }
 
-    public void setDividends(Set<Dividend> dividends) {
+    public void setDividends(List<Dividend> dividends) {
         this.dividends = dividends;
     }
 }

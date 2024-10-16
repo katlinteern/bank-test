@@ -1,7 +1,7 @@
 package com.example.controller;
 
 import com.example.dto.response.InvestmentResponse;
-import com.example.dto.response.PortfolioProfitabilityResponse;
+import com.example.dto.response.InvestmentSummaryResponse;
 import com.example.service.InvestmentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +27,25 @@ public class InvestmentController {
         
         List<InvestmentResponse> investments = investmentService.getInvestmentsByUserId(userId);
 
-        return ResponseEntity.ok(investments);
+        if (investments.isEmpty()) {
+            logger.warn("No investments found for user ID: {}", userId);
+            return ResponseEntity.noContent().build(); // 204 No Content
+        }
+
+        return ResponseEntity.ok(investments); // 200 OK
     }
 
-    @GetMapping("/profitability/")
-    public ResponseEntity<PortfolioProfitabilityResponse> getPortfolioProfitability() {
-        logger.info("Fetching profitability");
+    @GetMapping("/user/{userId}/summary") // Updated endpoint to reflect aggregation
+    public ResponseEntity<InvestmentSummaryResponse> getUserInvestmentSummary(@PathVariable Long userId) {
+        logger.info("Fetching investment summary for user ID: {}", userId);
 
-        PortfolioProfitabilityResponse investments = investmentService.getPortfolioProfitability();
+        InvestmentSummaryResponse summary = investmentService.getUserInvestmentSummary(userId);
 
-        return ResponseEntity.ok(investments);
+        if (summary == null) {
+            logger.warn("No investment summary available for user ID: {}", userId);
+            return ResponseEntity.notFound().build(); // 404 Not Found
+        }
+
+        return ResponseEntity.ok(summary); // 200 OK
     }
 }
