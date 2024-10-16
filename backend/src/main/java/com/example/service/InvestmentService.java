@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.ProfitabilityResult;
+import com.example.dto.ProfitResult;
 import com.example.dto.response.InvestmentResponse;
 import com.example.dto.response.InvestmentSummaryResponse;
 import com.example.model.Investment;
@@ -19,11 +19,11 @@ public class InvestmentService {
     private static final Logger logger = LoggerFactory.getLogger(InvestmentService.class);
 
     private final InvestmentRepository investmentRepository;
-    private final ProfitabilityService profitabilityService;
+    private final ProfitService profitService;
 
-    public InvestmentService(InvestmentRepository investmentRepository, ProfitabilityService profitabilityService) {
+    public InvestmentService(InvestmentRepository investmentRepository, ProfitService profitService) {
         this.investmentRepository = investmentRepository;
-        this.profitabilityService = profitabilityService;
+        this.profitService = profitService;
     }
 
     public List<InvestmentResponse> getInvestmentsByUserId(Long userId) {
@@ -45,8 +45,8 @@ public class InvestmentService {
         // Log the number of investments found
         logger.info("Found {} investments for user ID: {}", investments.size(), userId);
 
-        BigDecimal totalProfitability = BigDecimal.ZERO;
-        BigDecimal totalInvestment = BigDecimal.ZERO;
+        BigDecimal totalProfit = BigDecimal.ZERO;
+        BigDecimal totalValue = BigDecimal.ZERO;
 
         // Check if there are any investments before processing
         if (investments.isEmpty()) {
@@ -55,18 +55,18 @@ public class InvestmentService {
         }
 
         for (Investment investment : investments) {
-            ProfitabilityResult result = profitabilityService.calculateInvestmentProfitability(investment);
-            totalProfitability = totalProfitability.add(result.getProfitability());
-            totalInvestment = totalInvestment.add(result.getTotalInvestment());
+            ProfitResult result = profitService.calculateInvestmentProfit(investment);
+            totalProfit = totalProfit.add(result.getProfit());
+            totalValue = totalValue.add(result.getTotalValue());
         }
 
-        // Avoid division by zero for profitability percentage calculation
-        Double profitabilityPercentage = (totalInvestment.compareTo(BigDecimal.ZERO) > 0) ?
-            profitabilityService.calculateProfitabilityPercentage(totalProfitability, totalInvestment) : 0.0;
+        // Avoid division by zero for profit percentage calculation
+        Double profitPercentage = (totalValue.compareTo(BigDecimal.ZERO) > 0) ?
+            profitService.calculateProfitPercentage(totalProfit, totalValue) : 0.0;
 
         int numberOfInvestments = investments.size();
 
         // Return a new InvestmentSummaryResponse including all necessary data
-        return new InvestmentSummaryResponse(totalInvestment, totalProfitability, profitabilityPercentage, numberOfInvestments);
+        return new InvestmentSummaryResponse(totalValue, totalProfit, profitPercentage, numberOfInvestments);
     }
 }

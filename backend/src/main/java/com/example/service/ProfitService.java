@@ -9,35 +9,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.example.dto.ProfitabilityResult;
+import com.example.dto.ProfitResult;
 import com.example.enums.TransactionType;
 import com.example.model.Investment;
 import com.example.model.Transaction;
 
 @Service
-public class ProfitabilityService {
-    private static final Logger logger = LoggerFactory.getLogger(ProfitabilityService.class);
+public class ProfitService {
+    private static final Logger logger = LoggerFactory.getLogger(ProfitService.class);
 
-    public ProfitabilityResult calculateInvestmentProfitability(Investment investment) {
+    public ProfitResult calculateInvestmentProfit(Investment investment) {
         if (investment == null || investment.getTransactions() == null) {
             logger.warn("Invalid investment or transactions are null for investment ID: {}", investment != null ? investment.getId() : "unknown");
-            return new ProfitabilityResult(BigDecimal.ZERO, BigDecimal.ZERO);
+            return new ProfitResult(BigDecimal.ZERO, BigDecimal.ZERO);
         }
 
-        logger.info("Calculating profitability for investment ID: {}", investment.getId());
+        logger.info("Calculating profit for investment ID: {}", investment.getId());
         
         List<Transaction> transactions = investment.getTransactions();
         List<BigDecimal> cashFlows = getCashFlowsFromTransactions(transactions);
         
-        BigDecimal totalProfitability = cashFlows.stream()
+        BigDecimal totalProfit = cashFlows.stream()
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal totalInvestment = cashFlows.stream()
+        BigDecimal totalValue = cashFlows.stream()
                 .filter(cashFlow -> cashFlow.compareTo(BigDecimal.ZERO) < 0)
                 .map(BigDecimal::abs) // Convert to positive
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return new ProfitabilityResult(totalProfitability, totalInvestment);
+        return new ProfitResult(totalProfit, totalValue);
     }
 
     private List<BigDecimal> getCashFlowsFromTransactions(List<Transaction> transactions) {
@@ -58,12 +58,12 @@ public class ProfitabilityService {
         }
     }
 
-    public Double calculateProfitabilityPercentage(BigDecimal totalProfitability, BigDecimal totalInvestment) {
-        if (totalInvestment.compareTo(BigDecimal.ZERO) == 0) {
+    public Double calculateProfitPercentage(BigDecimal totalProfit, BigDecimal totalValue) {
+        if (totalValue.compareTo(BigDecimal.ZERO) == 0) {
             return 0.0; // Avoid division by zero
         }
-        // Profitability percentage = (totalProfitability / totalInvestment) * 100
-        return totalProfitability.divide(totalInvestment, RoundingMode.HALF_UP)
+        // Profit percentage = (totalProfit / totalValue) * 100
+        return totalProfit.divide(totalValue, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100))
                 .doubleValue();
     }

@@ -10,16 +10,16 @@ import lombok.Data;
 @Data
 public class InvestmentSummaryResponse {
 
-    private BigDecimal totalInvestment; 
-    private BigDecimal totalProfitability; 
-    private Double profitabilityPercentage; 
+    private BigDecimal totalValue; 
+    private BigDecimal totalProfit; 
+    private Double profitPercentage; 
     private int numberOfInvestments; 
 
-    public InvestmentSummaryResponse(BigDecimal totalInvestment, BigDecimal totalProfitability, 
-                                     Double profitabilityPercentage, int numberOfInvestments) {
-        this.totalInvestment = totalInvestment;
-        this.totalProfitability = totalProfitability;
-        this.profitabilityPercentage = profitabilityPercentage;
+    public InvestmentSummaryResponse(BigDecimal totalValue, BigDecimal totalProfit, 
+                                     Double profitPercentage, int numberOfInvestments) {
+        this.totalValue = totalValue;
+        this.totalProfit = totalProfit;
+        this.profitPercentage = profitPercentage;
         this.numberOfInvestments = numberOfInvestments;
     }
 }
