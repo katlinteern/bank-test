@@ -41,5 +41,17 @@
   .summary-card strong {
     color: #003366; 
   }
+
+  .card-icon {
+    margin-bottom: 5px;
+  }
+
+  .card-name {
+    margin-bottom: 3px;
+  }
+
+  .card-value {
+    margin-top: 0;
+  }
   
   

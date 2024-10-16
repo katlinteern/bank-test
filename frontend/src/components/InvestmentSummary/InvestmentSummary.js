@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getPortfolioProfitablity } from '../../services/ApiService';
+import { getUserInvestmentSummary } from '../../services/ApiService';
 import SummaryCard from '../SummaryCard/SummaryCard'; // Import new SummaryCard component
 import './InvestmentSummary.css';
 
@@ -9,7 +9,7 @@ export default function InvestmentSummary() {
   useEffect(() => { 
       async function fetchData() {
         try {
-          const portfolio = await getPortfolioProfitablity();
+          const portfolio = await getUserInvestmentSummary();
           setPortfolio(portfolio);
         } catch (error) {
           console.error('Error fetching investments:', error);
@@ -43,13 +43,13 @@ export default function InvestmentSummary() {
           />
           <SummaryCard 
             icon="&#128176;" 
-            name="Total profitability" 
-            value={portfolio.totalProfitability} 
+            name="Total profit" 
+            value={portfolio.totalProfit} 
           />
           <SummaryCard 
             icon="&#128200;" 
-            name="Profitability percentage" 
-            value={`${portfolio.profitabilityPercentage}%`} 
+            name="Profit percentage" 
+            value={`${portfolio.profitPercentage}%`} 
           />
           <SummaryCard 
             icon="&#128202;" 
