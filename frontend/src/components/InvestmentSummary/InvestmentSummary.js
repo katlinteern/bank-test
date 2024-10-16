@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getPortfolioProfitablity } from '../../services/ApiService';
+import SummaryCard from '../SummaryCard/SummaryCard'; // Import new SummaryCard component
 import './InvestmentSummary.css';
 
 export default function InvestmentSummary() {
@@ -34,22 +35,27 @@ export default function InvestmentSummary() {
       <div className="summary-container">
         <h2 className="summary-title">Investment Summary</h2>
         <div className="summary-cards">
-          <div className="summary-card">
-            <div className="card-icon">&#128181;</div> {/* Dollar sign icon */}
-            <p>Portfolio value: <strong>{portfolio.totalValue}</strong></p>
-          </div>
-          <div className="summary-card">
-            <div className="card-icon">&#128176;</div> {/* Money bag icon */}
-            <p>Total profitability: <strong>{portfolio.totalProfitability}</strong></p>
-          </div>
-          <div className="summary-card">
-            <div className="card-icon">&#128200;</div> {/* Bar chart icon */}
-            <p>Profitability percentage: <strong>{portfolio.profitabilityPercentage}%</strong></p>
-          </div>
-          <div className="summary-card">
-            <div className="card-icon">&#128202;</div> {/* List icon */}
-            <p>Number of investments: <strong>{portfolio.numberOfInvestments}</strong></p>
-          </div>
+          {/* Use SummaryCard component for each card */}
+          <SummaryCard 
+            icon="&#128181;" 
+            name="Portfolio value" 
+            value={portfolio.totalValue} 
+          />
+          <SummaryCard 
+            icon="&#128176;" 
+            name="Total profitability" 
+            value={portfolio.totalProfitability} 
+          />
+          <SummaryCard 
+            icon="&#128200;" 
+            name="Profitability percentage" 
+            value={`${portfolio.profitabilityPercentage}%`} 
+          />
+          <SummaryCard 
+            icon="&#128202;" 
+            name="Number of investments" 
+            value={portfolio.numberOfInvestments} 
+          />
         </div>
       </div>
     </div>
