@@ -3,19 +3,19 @@ package com.example.dto;
 import java.math.BigDecimal;
 
 public class ProfitResult {
-    private BigDecimal profit;
-    private BigDecimal totalValue;
+    private final BigDecimal totalValue;
+    private final BigDecimal xirr; // Add xirr field
 
-    public ProfitResult(BigDecimal profit, BigDecimal totalValue) {
-        this.profit = profit;
+    public ProfitResult(BigDecimal totalValue, BigDecimal xirr) {
         this.totalValue = totalValue;
-    }
-
-    public BigDecimal getProfit() {
-        return profit;
+        this.xirr = xirr;
     }
 
     public BigDecimal getTotalValue() {
         return totalValue;
+    }
+
+    public BigDecimal getXirr() {
+        return xirr;
     }
 }
