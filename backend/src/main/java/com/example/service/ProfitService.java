@@ -15,6 +15,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProfitService {
 
+    private final XirrCalculator xirrCalculator;
+
+    public ProfitService(XirrCalculator xirrCalculator) {
+        this.xirrCalculator = xirrCalculator;
+    }
+
     public ProfitResult calculateInvestmentProfit(Investment investment) {
         List<BigDecimal> cashFlows = new ArrayList<>();
         List<Instant> cashFlowDates = new ArrayList<>();
@@ -22,7 +28,7 @@ public class ProfitService {
         addCashFlowData(investment, cashFlows, cashFlowDates);
 
         BigDecimal totalValue = cashFlows.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal xirr = calculateXirr(cashFlowDates, cashFlows);
+        BigDecimal xirr = xirrCalculator.calculateXirr(cashFlowDates, cashFlows);
         
         return new ProfitResult(totalValue, xirr);
     }
@@ -47,10 +53,5 @@ public class ProfitService {
         return transaction.getType() == TransactionType.BUY
             ? price.multiply(quantity.negate()).subtract(fee)
             : price.multiply(quantity).subtract(fee);
-    }
-
-    private BigDecimal calculateXirr(List<Instant> dates, List<BigDecimal> cashFlows) {
-        // Implement XIRR calculation logic here
-        return BigDecimal.ZERO; // Placeholder for actual XIRR calculation
     }
 }
