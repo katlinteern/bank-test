@@ -1,6 +1,6 @@
 package com.example.service;
 
-import com.example.dto.ProfitResult;
+import com.example.dto.CashFlowData;
 import com.example.enums.TransactionType;
 import com.example.model.Investment;
 import com.example.model.Transaction;
@@ -13,32 +13,27 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ProfitService {
+public class InvestmentProfitService {
 
-    private final XirrCalculator xirrCalculator;
 
-    public ProfitService(XirrCalculator xirrCalculator) {
-        this.xirrCalculator = xirrCalculator;
-    }
-
-    public ProfitResult calculateInvestmentProfit(Investment investment) {
+    public CashFlowData collectCashFlowData(Investment investment) {
         List<BigDecimal> cashFlows = new ArrayList<>();
         List<Instant> cashFlowDates = new ArrayList<>();
 
-        addCashFlowData(investment, cashFlows, cashFlowDates);
+        collectTransactionCashFlows(investment, cashFlows, cashFlowDates);
+        collectDividendCashFlows(investment, cashFlows, cashFlowDates);
 
-        BigDecimal totalValue = cashFlows.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal xirr = xirrCalculator.calculateXirr(cashFlowDates, cashFlows);
-        
-        return new ProfitResult(totalValue, xirr);
+        return new CashFlowData(cashFlows, cashFlowDates);
     }
 
-    private void addCashFlowData(Investment investment, List<BigDecimal> cashFlows, List<Instant> cashFlowDates) {
+    private void collectTransactionCashFlows(Investment investment, List<BigDecimal> cashFlows, List<Instant> cashFlowDates) {
         investment.getTransactions().forEach(transaction -> {
             cashFlows.add(calculateTransactionCashFlow(transaction));
             cashFlowDates.add(transaction.getTimestamp());
         });
+    }
 
+    private void collectDividendCashFlows(Investment investment, List<BigDecimal> cashFlows, List<Instant> cashFlowDates) {
         investment.getDividends().forEach(dividend -> {
             cashFlows.add(dividend.getAmount());
             cashFlowDates.add(dividend.getTimestamp());

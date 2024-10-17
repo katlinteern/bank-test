@@ -25,7 +25,7 @@ public class InvestmentController {
     public ResponseEntity<List<InvestmentResponse>> getInvestmentsByUserId(@PathVariable Long userId) {
         logger.info("Fetching investments for user ID: {}", userId);
         
-        List<InvestmentResponse> investments = investmentService.getInvestmentsByUserId(userId);
+        List<InvestmentResponse> investments = investmentService.getUserInvestments(userId);
 
         if (investments.isEmpty()) {
             logger.warn("No investments found for user ID: {}", userId);
