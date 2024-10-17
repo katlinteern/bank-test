@@ -2,22 +2,21 @@ package com.example.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
 
 public class CashFlowData {
-    private List<BigDecimal> cashFlows;
-    private List<Instant> cashFlowDates;
+    private final BigDecimal amount;
+    private final Instant date;
 
-    public CashFlowData(List<BigDecimal> cashFlows, List<Instant> cashFlowDates) {
-        this.cashFlows = cashFlows;
-        this.cashFlowDates = cashFlowDates;
+    public CashFlowData(BigDecimal amount, Instant date) {
+        this.amount = amount;
+        this.date = date;
     }
 
-    public List<BigDecimal> getCashFlows() {
-        return cashFlows;
+    public BigDecimal getAmount() {
+        return amount;
     }
 
-    public List<Instant> getCashFlowDates() {
-        return cashFlowDates;
+    public Instant getDate() {
+        return date;
     }
 }

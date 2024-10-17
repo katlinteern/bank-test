@@ -1,11 +1,13 @@
 package com.example.service;
 
+import com.example.dto.CashFlowData;
 import com.example.dto.response.InvestmentResponse;
 import com.example.dto.response.InvestmentSummaryResponse;
 import com.example.model.Investment;
 import com.example.repository.InvestmentRepository;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,10 +49,13 @@ public class InvestmentService {
             return new InvestmentSummaryResponse(BigDecimal.ZERO, BigDecimal.ZERO, 0);
         }
     
-        BigDecimal totalXirr = investments.stream()
-            .map(investment -> profitService.collectCashFlowData(investment))
-            .map(cashFlowData -> calculateXirr(cashFlowData.getCashFlowDates(), cashFlowData.getCashFlows()))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<CashFlowData> allCashFlowData = investments.stream()
+            .flatMap(investment -> profitService.collectCashFlowData(investment).stream())
+            .sorted(Comparator.comparing(CashFlowData::getDate))
+            .collect(Collectors.toList());
+
+        // Arvutage XIRRi
+        BigDecimal totalXirr = calculateXirr(allCashFlowData);
     
         int numberOfInvestments = investments.size();
 
