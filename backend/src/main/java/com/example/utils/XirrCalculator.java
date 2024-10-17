@@ -17,7 +17,7 @@ public class XirrCalculator {
 
     public static BigDecimal calculateXirr(List<CashFlowData> cashFlowDataList) {
         logger.info("Starting XIRR calculation...");
-
+    
         // Koguge kuupäevad ja rahavoogud
         List<Instant> dates = cashFlowDataList.stream()
             .map(CashFlowData::getDate)
@@ -25,44 +25,50 @@ public class XirrCalculator {
         List<BigDecimal> cashFlows = cashFlowDataList.stream()
             .map(CashFlowData::getAmount)
             .toList();
-
+    
         validateInput(dates, cashFlows);
-
+    
+        if (cashFlows.size() < 2) {
+            logger.error("Not enough cash flow data to calculate XIRR.");
+            throw new IllegalArgumentException("Not enough cash flow data.");
+        }
+    
         logger.info("Initial guess for XIRR: 0.1");
-        double guessRate = 0.1;
+        double guessRate = 0.1; // Potentially improve this by analyzing cash flows
         double rate = guessRate;
-
+    
         for (int i = 0; i < MAX_ITERATIONS; i++) {
             double npv = calculateNpv(rate, dates, cashFlows);
             double npvDerivative = calculateNpvDerivative(rate, dates, cashFlows);
-
+    
             logger.info("Precision {}:", PRECISION);
             logger.info("Iteration {}: rate = {}, NPV = {}, NPV derivative = {}", i, rate, npv, npvDerivative);
-
+    
             if (Double.isNaN(npv) || Double.isInfinite(npv)) {
                 logger.error("NPV is NaN or Infinite at iteration {}: rate = {}", i, rate);
                 throw new ArithmeticException("NPV calculation resulted in NaN or Infinite");
             }
-
+    
             if (Double.isNaN(npvDerivative) || Double.isInfinite(npvDerivative)) {
                 logger.error("NPV derivative is NaN or Infinite at iteration {}: rate = {}", i, rate);
                 throw new ArithmeticException("NPV derivative calculation resulted in NaN or Infinite");
             }
-
-            // Newton-Raphson meetod
+    
+            // Newton-Raphson method
             if (npvDerivative == 0) {
                 logger.error("NPV derivative is zero at iteration {}: rate = {}", i, rate);
-                throw new ArithmeticException("Division by zero in Newton-Raphson method");
+                // Instead of throwing an error, return a specific value or log and break
+                return BigDecimal.valueOf(Double.NaN); // Or handle accordingly
             }
-
+    
             double newRate = rate - npv / npvDerivative;
             logger.info("New rate calculated: {}", newRate);
-
+    
             if (newRate <= -1.0) {
                 logger.error("Calculated rate is less than or equal to -1. XIRR calculation cannot proceed.");
                 throw new ArithmeticException("Calculated rate is less than or equal to -1. Calculation stopped.");
             }
-
+    
             if (Math.abs(newRate - rate) < PRECISION) {
                 logger.info("XIRR calculation successful. Final rate: {}", newRate);
                 return BigDecimal.valueOf(newRate);
@@ -72,6 +78,7 @@ public class XirrCalculator {
         logger.error("XIRR calculation failed - maximum iterations reached.");
         throw new RuntimeException("XIRR calculation did not work - max iterations achieved.");
     }
+    
 
     private static double calculateNpv(double rate, List<Instant> dates, List<BigDecimal> cashFlows) {
         double npv = 0.0;
@@ -96,20 +103,31 @@ public class XirrCalculator {
     private static double calculateNpvDerivative(double rate, List<Instant> dates, List<BigDecimal> cashFlows) {
         double npvDerivative = 0.0;
         long firstDate = dates.get(0).toEpochMilli();
-        logger.info("Calculating NPV derivative with rate: {}", rate);
-
-        // Kontrolli, et intressimäär ei ole -1 või madalam
+        
         if (rate <= -1.0) {
-            logger.error("Invalid rate: {}. Rate must be greater than -1 to prevent division by zero.", rate);
-            throw new ArithmeticException("Rate must be greater than -1.");
+            throw new IllegalArgumentException("Intressimäär peab olema suurem kui -1.0.");
         }
-
+    
         for (int i = 0; i < cashFlows.size(); i++) {
             long daysDifference = (dates.get(i).toEpochMilli() - firstDate) / (1000 * 60 * 60 * 24);
-            npvDerivative -= (daysDifference / 365.0) * cashFlows.get(i).doubleValue() / Math.pow(1 + rate, (double) daysDifference / 365 + 1);
+            double cashFlow = cashFlows.get(i).doubleValue();
+    
+            // Jätame vahele nullrahavood
+            if (cashFlow == 0) {
+                continue; // Jätame vahele nullrahavoog
+            }
+    
+            npvDerivative -= (daysDifference / 365.0) * cashFlow / Math.pow(1 + rate, (double) daysDifference / 365 + 1);
         }
+    
+        // Kui derivatiiv on null, kasuta väikest väärtust
+        if (npvDerivative == 0) {
+            npvDerivative = 0.0001; // Väike väärtus
+        }
+    
         return npvDerivative;
     }
+    
 
     private static void validateInput(List<Instant> dates, List<BigDecimal> cashFlows) {
         logger.info("Validating input: dates={}, cashFlows={}", dates, cashFlows);
