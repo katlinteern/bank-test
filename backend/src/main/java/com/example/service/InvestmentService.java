@@ -7,6 +7,7 @@ import com.example.model.Investment;
 import com.example.repository.InvestmentRepository;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ public class InvestmentService {
     InvestmentRepository investmentRepository;
 
     @Autowired
-    InvestmentProfitService profitService;
+    TransactionService transactionService;
 
     public List<InvestmentResponse> getUserInvestments(Long userId) {
         List<Investment> investments = investmentRepository.findAllByUserId(userId);
@@ -50,15 +51,27 @@ public class InvestmentService {
         }
     
         List<CashFlowData> allCashFlowData = investments.stream()
-            .flatMap(investment -> profitService.collectCashFlowData(investment).stream())
+            .flatMap(investment -> collectCashFlowData(investment).stream())
             .sorted(Comparator.comparing(CashFlowData::getDate))
             .collect(Collectors.toList());
 
-        // Arvutage XIRRi
         BigDecimal totalXirr = calculateXirr(allCashFlowData);
     
         int numberOfInvestments = investments.size();
 
         return new InvestmentSummaryResponse(BigDecimal.ZERO, totalXirr, numberOfInvestments);
+    }
+
+    public List<CashFlowData> collectCashFlowData(Investment investment) {
+        List<CashFlowData> cashFlowData = new ArrayList<>();
+
+        investment.getTransactions().forEach(transaction -> cashFlowData
+                .add(new CashFlowData(transactionService.calculateCashFlow(transaction), transaction.getTimestamp())));
+        investment.getDividends()
+                .forEach(dividend -> cashFlowData.add(new CashFlowData(dividend.getAmount(), dividend.getTimestamp())));
+
+        return cashFlowData.stream()
+                .sorted(Comparator.comparing(CashFlowData::getDate))
+                .toList();
     }
 }
