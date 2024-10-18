@@ -7,6 +7,7 @@ import com.example.model.Investment;
 import com.example.repository.InvestmentRepository;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -37,26 +38,26 @@ public class InvestmentService {
         }
 
         return investments.stream()
-            .map(investment -> new InvestmentResponse(investment.getId(), investment.getName()))
-            .collect(Collectors.toList());
+                .map(investment -> new InvestmentResponse(investment.getId(), investment.getName()))
+                .collect(Collectors.toList());
     }
 
     public InvestmentSummaryResponse getUserInvestmentSummary(Long userId) {
         List<Investment> investments = investmentRepository.findAllByUserId(userId);
         logger.info("Found {} investments for user ID: {}", investments.size(), userId);
-    
+
         if (investments.isEmpty()) {
             logger.warn("No investments available for user ID: {}", userId);
             return new InvestmentSummaryResponse(BigDecimal.ZERO, BigDecimal.ZERO, 0);
         }
-    
+
         List<CashFlowData> allCashFlowData = investments.stream()
-            .flatMap(investment -> collectCashFlowData(investment).stream())
-            .sorted(Comparator.comparing(CashFlowData::getDate))
-            .collect(Collectors.toList());
+                .flatMap(investment -> collectCashFlowData(investment).stream())
+                .sorted(Comparator.comparing(CashFlowData::getDate))
+                .collect(Collectors.toList());
 
         BigDecimal totalXirr = calculateXirr(allCashFlowData);
-    
+
         int numberOfInvestments = investments.size();
 
         return new InvestmentSummaryResponse(BigDecimal.ZERO, totalXirr, numberOfInvestments);
@@ -69,6 +70,11 @@ public class InvestmentService {
                 .add(new CashFlowData(transactionService.calculateCashFlow(transaction), transaction.getTimestamp())));
         investment.getDividends()
                 .forEach(dividend -> cashFlowData.add(new CashFlowData(dividend.getAmount(), dividend.getTimestamp())));
+
+        BigDecimal currentCashFlow = investment.getCurrentPrice()
+                .multiply(BigDecimal.valueOf(investment.getCurrentQuantity()));
+
+        cashFlowData.add(new CashFlowData(currentCashFlow, Instant.now()));
 
         return cashFlowData.stream()
                 .sorted(Comparator.comparing(CashFlowData::getDate))

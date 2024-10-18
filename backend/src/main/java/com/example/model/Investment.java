@@ -2,6 +2,7 @@ package com.example.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,10 @@ public class Investment {
 
     @Column(length = 200, nullable = false)
     private String name;
+
+    private BigDecimal currentPrice;
+
+    private int currentQuantity;
 
     @OneToMany(mappedBy = "investment", cascade = CascadeType.PERSIST) // Avoid removing transactions on investment removal
     private List<Transaction> transactions = new ArrayList<>(); // Changed to List for order preservation
@@ -51,6 +56,22 @@ public class Investment {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public BigDecimal getCurrentPrice() {
+        return currentPrice;
+    }
+
+    public void setCurrentPrice(BigDecimal currentPrice) {
+        this.currentPrice = currentPrice;
+    }
+
+    public int getCurrentQuantity() {
+        return currentQuantity;
+    }
+
+    public void setCurrentQuantity(int currentQuantity) {
+        this.currentQuantity = currentQuantity;
     }
 
     public List<Transaction> getTransactions() {

@@ -1,4 +1,4 @@
-package com.example.service;
+package com.example.utils;
 
 import org.junit.jupiter.api.Test;
 
@@ -38,10 +38,10 @@ class XirrCalculatorTest {
     @Test
     public void testCalculateXirr_WithMultipleCashFlowsIncludingZero() {
         List<CashFlowData> cashFlowDataList = Arrays.asList(
-            new CashFlowData(new BigDecimal("-10000"), Instant.parse("2021-01-01T00:00:00Z")), // Investment
-            new CashFlowData(new BigDecimal("0"), Instant.parse("2022-01-01T00:00:00Z")),       // Cash flow is zero
-            new CashFlowData(new BigDecimal("2000"), Instant.parse("2023-01-01T00:00:00Z")),    // Cash flow is positive
-            new CashFlowData(new BigDecimal("3000"), Instant.parse("2024-01-01T00:00:00Z"))     // Another positive cash flow
+            new CashFlowData(new BigDecimal("-10000"), Instant.parse("2021-01-01T00:00:00Z")), 
+            new CashFlowData(new BigDecimal("0"), Instant.parse("2022-01-01T00:00:00Z")),      
+            new CashFlowData(new BigDecimal("2000"), Instant.parse("2023-01-01T00:00:00Z")),   
+            new CashFlowData(new BigDecimal("9000"), Instant.parse("2024-01-01T00:00:00Z"))  
         );
     
         BigDecimal xirr = calculateXirr(cashFlowDataList);
@@ -50,7 +50,7 @@ class XirrCalculatorTest {
     
         assertNotNull(xirr);
         
-        BigDecimal expectedXirr = new BigDecimal("-0.2316"); 
+        BigDecimal expectedXirr = new BigDecimal("0.0344"); 
 
         assertEquals(expectedXirr.setScale(4, RoundingMode.HALF_UP), xirr.setScale(4, RoundingMode.HALF_UP));
     }

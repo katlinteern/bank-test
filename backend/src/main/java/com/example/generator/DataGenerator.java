@@ -1,13 +1,5 @@
 package com.example.generator;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.Period;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -19,6 +11,13 @@ import com.example.model.Transaction;
 import com.example.repository.DividendRepository;
 import com.example.repository.InvestmentRepository;
 import com.example.repository.TransactionRepository;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 @Component
 public class DataGenerator implements CommandLineRunner {
@@ -33,100 +32,101 @@ public class DataGenerator implements CommandLineRunner {
     private DividendRepository dividendRepository;
 
     private final Random random = new Random();
-    private static final double MIN_PRICE = 20.0;
-    private static final double MAX_PRICE = 200.0;
-    private static final double MIN_FEE = 0.5;
-    private static final double MAX_FEE = 5.0;
-
+    private static final String[] INVESTMENT_NAMES = {"Fund A", "Fund B", "Fund C", "Company A", "Company B", "Company C", "Fund D", "Fund E", "Company D", "Company E"};
+    
     @Override
     public void run(String... args) {
         generateData();
     }
 
     private void generateData() {
-        Long userId = 1L;
+        for (String investmentName : INVESTMENT_NAMES) {
+            Investment investment = new Investment();
+            investment.setName(investmentName);
+            investment.setCurrentPrice(BigDecimal.valueOf(50 + random.nextInt(50))); // Set current price between 50 and 100
+            investment.setUserId(1L); // Assign a user ID for simplicity
 
-        for (int i = 1; i <= 10; i++) {
-            String investmentName = (i % 2 == 0) ? "Fund " + i : "Company " + i;
-            Investment investment = createInvestment(userId, investmentName);
+            // Save the investment before generating transactions
+            investmentRepository.save(investment);
+            
+            // Generate transactions for the saved investment
+            List<Transaction> transactions = generateTransactions(investment);
+            investment.setCurrentQuantity(calculateCurrentQuantity(transactions));
+            investment.setTransactions(transactions);
 
-            // Generate initial purchase transactions
-            int initialQuantity = random.nextInt(50, 101); // Initial quantity between 50 and 100
-            BigDecimal purchasePrice = BigDecimal.valueOf(random.nextDouble(MIN_PRICE, MAX_PRICE));
-            generatePurchaseTransaction(investment, initialQuantity, purchasePrice);
-
-            // Generate subsequent sales transactions based on the initial purchase
-            generateRandomSalesTransactions(investment, initialQuantity, purchasePrice);
-            generateRandomDividends(investment, investmentName.startsWith("Company") ? 1 : 4);
+            // Update the investment in the database after associating transactions
+            investmentRepository.save(investment);
+            
+            generateDividends(investment);
         }
     }
 
-    private Investment createInvestment(Long userId, String name) {
-        Investment investment = new Investment();
-        investment.setUserId(userId);
-        investment.setName(name);
-        return investmentRepository.save(investment);
-    }
-
-    private void generatePurchaseTransaction(Investment investment, int quantity, BigDecimal price) {
-        Transaction transaction = new Transaction();
-        transaction.setType(TransactionType.BUY);
-        transaction.setQuantity(quantity);
-        transaction.setPrice(price);
-        transaction.setFee(BigDecimal.valueOf(random.nextDouble(MIN_FEE, MAX_FEE)));
-        transaction.setTimestamp(Instant.now().minus(Period.ofDays(random.nextInt(1, 730)))); // Up to 2 years ago
-        transaction.setInvestment(investment);
-        transactionRepository.save(transaction);
-    }
-
-    private void generateRandomSalesTransactions(Investment investment, int initialQuantity, BigDecimal purchasePrice) {
-        List<Integer> saleQuantities = new ArrayList<>();
-        int maxSales = random.nextInt(5, 10); // Random number of sales transactions between 5 and 10
-        int totalSold = 0;
-
-        for (int i = 0; i < maxSales; i++) {
-            int remainingQuantity = initialQuantity - totalSold;
-
-            // If there's no remaining quantity to sell, break out of the loop
-            if (remainingQuantity <= 0) {
-                break;
-            }
-
-            // Ensure valid bounds for the nextInt call
-            int saleQuantity = random.nextInt(1, Math.max(remainingQuantity / 2 + 1, 2)); // Ensure at least 2
-            totalSold += saleQuantity;
-            saleQuantities.add(saleQuantity);
-        }
-
-        // Sort sales quantities to simulate time-based ordering
-        Collections.sort(saleQuantities);
-
-        Instant currentTimestamp = Instant.now();
-
-        for (int quantity : saleQuantities) {
+    public List<Transaction> generateTransactions(Investment investment) {
+        List<Transaction> transactions = new ArrayList<>();
+        Instant timestamp = Instant.now().minus(6 * 365, ChronoUnit.DAYS); // 6-year horizon
+        int totalQuantity = 0; // To keep track of total buy quantity
+    
+        for (int i = 0; i < 100; i++) {
             Transaction transaction = new Transaction();
-            BigDecimal salePrice = purchasePrice.add(BigDecimal.valueOf(random.nextDouble(-5.0, 5.0))); // Slight variation in sale price
-            transaction.setType(TransactionType.SELL);
-            transaction.setQuantity(quantity);
-            transaction.setPrice(salePrice);
-            transaction.setFee(BigDecimal.valueOf(random.nextDouble(MIN_FEE, MAX_FEE)));
-            transaction.setTimestamp(currentTimestamp.minus(Period.ofDays(random.nextInt(1, 730)))); // Random time over 2 years
             transaction.setInvestment(investment);
+    
+            // Randomly decide the interval: between 1 - 3 weeks
+            long randomDays = 7 + random.nextInt(14); // Random interval between 1 - 3 weeks
+            timestamp = timestamp.plus(randomDays, ChronoUnit.DAYS); // Move the timestamp forward by random days
+            transaction.setTimestamp(timestamp); // Ensure transactions are in chronological order
+            
+            // Determine transaction type
+            if (random.nextBoolean() && totalQuantity > 1) { // 50% chance to sell if we have at least 2 (to leave something remaining)
+                int maxSellQuantity = totalQuantity / 2; // Limit sell to 50% of total quantity
+                int sellQuantity = random.nextInt(maxSellQuantity) + 1; // Random sell quantity from 1 to maxSellQuantity
+                transaction.setType(TransactionType.SELL);
+                transaction.setQuantity(sellQuantity);
+                totalQuantity -= sellQuantity; // Update the total quantity
+            } else {
+                transaction.setType(TransactionType.BUY);
+                int buyQuantity = random.nextInt(5) + 1; // Random buy quantity between 1 and 5
+                transaction.setQuantity(buyQuantity);
+                totalQuantity += buyQuantity; // Update the total quantity
+            }
+            
+            // Set price with ±5 fluctuation
+            BigDecimal priceFluctuation = BigDecimal.valueOf(random.nextInt(11) - 5); // Random fluctuation between -5 and +5
+            transaction.setPrice(investment.getCurrentPrice().add(priceFluctuation));
+            
+            // Set transaction fee
+            transaction.setFee(BigDecimal.valueOf(random.nextDouble() * 10)); // Random fee between 0 and 10
+            
+            transactions.add(transaction);
             transactionRepository.save(transaction);
-            currentTimestamp = transaction.getTimestamp(); // Ensure chronological order
         }
+        return transactions;
+    }
+    
+
+    private int calculateCurrentQuantity(List<Transaction> transactions) {
+        int totalBuy = 0;
+        int totalSell = 0;
+        for (Transaction transaction : transactions) {
+            if (transaction.getType() == TransactionType.BUY) {
+                totalBuy += transaction.getQuantity();
+            } else {
+                totalSell += transaction.getQuantity();
+            }
+        }
+        return totalBuy - totalSell; // Remaining quantity
     }
 
-    private void generateRandomDividends(Investment investment, int count) {
-        String investmentName = investment.getName();
-
-        for (int i = 0; i < count; i++) {
+    private void generateDividends(Investment investment) {
+        Instant dividendStart = investment.getTransactions().get(0).getTimestamp(); // Start after first transaction
+        for (int i = 0; i < (investment.getName().startsWith("Fund") ? 4 : 1); i++) {
             Dividend dividend = new Dividend();
-            double minDividend = investmentName.startsWith("Company") ? 1.0 : 0.5;
-            double maxDividend = investmentName.startsWith("Company") ? 10.0 : 5.0;
-            dividend.setAmount(BigDecimal.valueOf(random.nextDouble(minDividend, maxDividend))); // Ensure valid range
             dividend.setInvestment(investment);
-            dividend.setTimestamp(Instant.now().minus(Period.ofDays(random.nextInt(1, 730)))); // Random time over 2 years
+            dividend.setTimestamp(dividendStart.plus(i * 90, ChronoUnit.DAYS)); // For Funds, 4 dividends in a year
+            
+            BigDecimal totalValue = investment.getCurrentPrice().multiply(BigDecimal.valueOf(investment.getCurrentQuantity()));
+            BigDecimal dividendAmount = totalValue.multiply(BigDecimal.valueOf(0.02)); // Assuming a fixed 2% dividend
+            
+            dividend.setAmount(dividendAmount);
             dividendRepository.save(dividend);
         }
     }
