@@ -19,9 +19,11 @@ public class Investment {
     @Column(length = 200, nullable = false)
     private String name;
 
-    private BigDecimal currentPrice;
+    @Column(nullable = false)
+    private BigDecimal currentPrice = BigDecimal.ZERO;
 
-    private int currentQuantity;
+    @Column(nullable = false)
+    private int currentQuantity = 0;
 
     @OneToMany(mappedBy = "investment", cascade = CascadeType.PERSIST) // Avoid removing transactions on investment removal
     private List<Transaction> transactions = new ArrayList<>(); // Changed to List for order preservation

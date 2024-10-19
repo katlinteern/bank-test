@@ -22,6 +22,13 @@ public class Dividend {
     @JoinColumn(name = "investment_id", referencedColumnName = "id", nullable = false)
     private Investment investment;
 
+    public Dividend() {}
+
+    public Dividend(Investment investment, BigDecimal amount, Instant timestamp) {
+        this.investment = investment;
+        this.amount = amount;
+        this.timestamp = timestamp;
+    }
     public Long getId() {
         return id;
     }

@@ -1,6 +1,7 @@
 package com.example.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,50 +39,71 @@ public class InvestmentService {
         }
 
         return investments.stream()
-                .map(investment -> new InvestmentResponse(investment.getId(), investment.getName()))
+                .map(this::createInvestmentResponse)
                 .collect(Collectors.toList());
     }
 
     public InvestmentSummaryResponse getUserInvestmentSummary(Long userId) {
         List<Investment> investments = investmentRepository.findAllByUserId(userId);
         logger.info("Found {} investments for user ID: {}", investments.size(), userId);
-
+    
         if (investments.isEmpty()) {
             logger.warn("No investments available for user ID: {}", userId);
             return new InvestmentSummaryResponse(BigDecimal.ZERO, BigDecimal.ZERO, 0);
         }
-
-        List<CashFlowData> cashFlowData = investments.stream()
-                .flatMap(investment -> collectCashFlowData(investment).stream())
-                .collect(Collectors.toList());
-
-        List<Instant> dates = extractDates(cashFlowData);
-        List<BigDecimal> cashFlows = extractCashFlows(cashFlowData);
-        BigDecimal totalXirr = calculateXirr(dates, cashFlows);
-
-        int numberOfInvestments = investments.size();
-
-        return new InvestmentSummaryResponse(BigDecimal.ZERO, totalXirr, numberOfInvestments);
+    
+        // Use the same method to calculate for all investments
+        return calculateInvestmentSummary(investments);
     }
-
-    public List<CashFlowData> collectCashFlowData(Investment investment) {
+    
+    public InvestmentResponse createInvestmentResponse(Investment investment) {
+        InvestmentSummaryResponse summary = calculateInvestmentSummary(List.of(investment));
+        return new InvestmentResponse(investment.getId(), investment.getName(), summary.getTotalValue(), summary.getProfitability());
+    }
+    
+    private InvestmentSummaryResponse calculateInvestmentSummary(List<Investment> investments) {
+        BigDecimal totalValue = BigDecimal.ZERO;
+        List<CashFlowData> cashFlowData = new ArrayList<>();
+    
+        for (Investment investment : investments) {
+            totalValue = totalValue.add(calculateTotalValue(investment));
+            cashFlowData.addAll(collectCashFlowData(investment));
+        }
+    
+        cashFlowData = filterAndSortCashFlowData(cashFlowData);
+        BigDecimal totalXirr = cashFlowData.isEmpty() ? BigDecimal.ZERO : calculateXirr(extractDates(cashFlowData), extractCashFlows(cashFlowData));
+        BigDecimal profitability = totalXirr.multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
+    
+        return new InvestmentSummaryResponse(totalValue, profitability, investments.size());
+    }
+    
+    private BigDecimal calculateTotalValue(Investment investment) {
+        return investment.getCurrentPrice().multiply(BigDecimal.valueOf(investment.getCurrentQuantity()));
+    }
+    
+    
+    private List<CashFlowData> collectCashFlowData(Investment investment) {
         List<CashFlowData> cashFlowData = new ArrayList<>();
 
-        investment.getTransactions().forEach(transaction -> cashFlowData
-                .add(new CashFlowData(transactionService.calculateCashFlow(transaction), transaction.getTimestamp())));
+        investment.getTransactions().forEach(transaction -> 
+            cashFlowData.add(new CashFlowData(transactionService.calculateCashFlow(transaction), transaction.getTimestamp())));
 
-        investment.getDividends()
-                .forEach(dividend -> cashFlowData.add(new CashFlowData(dividend.getAmount(), dividend.getTimestamp())));
+        investment.getDividends().forEach(dividend -> 
+            cashFlowData.add(new CashFlowData(dividend.getAmount(), dividend.getTimestamp())));
 
         BigDecimal currentValue = investment.getCurrentPrice()
                 .multiply(BigDecimal.valueOf(investment.getCurrentQuantity()));
         cashFlowData.add(new CashFlowData(currentValue, Instant.now()));
 
+        return cashFlowData;
+    }
+
+    private List<CashFlowData> filterAndSortCashFlowData(List<CashFlowData> cashFlowData) {
         return cashFlowData.stream()
                 .filter(cashFlow -> cashFlow.getDate().isBefore(Instant.now())
-                        || cashFlow.getDate().equals(Instant.now())) // filter out future dates for actual xirr
-                .filter(cashFlow -> cashFlow.getAmount().compareTo(BigDecimal.ZERO) != 0) 
-                .sorted(Comparator.comparing(CashFlowData::getDate))
+                        || cashFlow.getDate().equals(Instant.now())) // filter out future dates
+                .filter(cashFlow -> cashFlow.getAmount().compareTo(BigDecimal.ZERO) != 0) // filter out zero amounts
+                .sorted(Comparator.comparing(CashFlowData::getDate)) // sort by date
                 .collect(Collectors.toList());
     }
 
