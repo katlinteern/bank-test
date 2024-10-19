@@ -1,11 +1,5 @@
 package com.example.service;
 
-import com.example.dto.CashFlowData;
-import com.example.dto.response.InvestmentResponse;
-import com.example.dto.response.InvestmentSummaryResponse;
-import com.example.model.Investment;
-import com.example.repository.InvestmentRepository;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,6 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.dto.CashFlowData;
+import com.example.dto.response.InvestmentResponse;
+import com.example.dto.response.InvestmentSummaryResponse;
+import com.example.model.Investment;
+import com.example.repository.InvestmentRepository;
 
 import static com.example.utils.XirrCalculator.calculateXirr;
 
@@ -51,12 +51,13 @@ public class InvestmentService {
             return new InvestmentSummaryResponse(BigDecimal.ZERO, BigDecimal.ZERO, 0);
         }
 
-        List<CashFlowData> allCashFlowData = investments.stream()
+        List<CashFlowData> cashFlowData = investments.stream()
                 .flatMap(investment -> collectCashFlowData(investment).stream())
-                .sorted(Comparator.comparing(CashFlowData::getDate))
                 .collect(Collectors.toList());
 
-        BigDecimal totalXirr = calculateXirr(allCashFlowData);
+        List<Instant> dates = extractDates(cashFlowData);
+        List<BigDecimal> cashFlows = extractCashFlows(cashFlowData);
+        BigDecimal totalXirr = calculateXirr(dates, cashFlows);
 
         int numberOfInvestments = investments.size();
 
@@ -68,16 +69,31 @@ public class InvestmentService {
 
         investment.getTransactions().forEach(transaction -> cashFlowData
                 .add(new CashFlowData(transactionService.calculateCashFlow(transaction), transaction.getTimestamp())));
+
         investment.getDividends()
                 .forEach(dividend -> cashFlowData.add(new CashFlowData(dividend.getAmount(), dividend.getTimestamp())));
 
-        BigDecimal currentCashFlow = investment.getCurrentPrice()
+        BigDecimal currentValue = investment.getCurrentPrice()
                 .multiply(BigDecimal.valueOf(investment.getCurrentQuantity()));
-
-        cashFlowData.add(new CashFlowData(currentCashFlow, Instant.now()));
+        cashFlowData.add(new CashFlowData(currentValue, Instant.now()));
 
         return cashFlowData.stream()
+                .filter(cashFlow -> cashFlow.getDate().isBefore(Instant.now())
+                        || cashFlow.getDate().equals(Instant.now())) // filter out future dates for actual xirr
+                .filter(cashFlow -> cashFlow.getAmount().compareTo(BigDecimal.ZERO) != 0) 
                 .sorted(Comparator.comparing(CashFlowData::getDate))
-                .toList();
+                .collect(Collectors.toList());
+    }
+
+    private static List<Instant> extractDates(List<CashFlowData> cashFlowDataList) {
+        return cashFlowDataList.stream()
+                .map(CashFlowData::getDate)
+                .collect(Collectors.toList());
+    }
+
+    private static List<BigDecimal> extractCashFlows(List<CashFlowData> cashFlowDataList) {
+        return cashFlowDataList.stream()
+                .map(CashFlowData::getAmount)
+                .collect(Collectors.toList());
     }
 }
