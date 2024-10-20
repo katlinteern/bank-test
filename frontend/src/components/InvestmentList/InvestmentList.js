@@ -4,21 +4,48 @@ import './InvestmentList.css';
 
 export default function InvestmentList() {
   const [investments, setInvestments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); 
 
   useEffect(() => {
-    if (investments.length === 0) {
-      async function fetchData() {
-        try {
-          const investments = await getUserInvestments();
-          setInvestments(investments);
-        } catch (error) {
-          console.error('Error fetching investments:', error);
-        }
+    async function fetchData() {
+      try {
+        const investments = await getUserInvestments();
+        setInvestments(investments);
+      } catch (error) {
+        console.error('Error fetching investments:', error);
+        setError('No investments found'); 
+      } finally {
+        setLoading(false);
       }
-
-      fetchData();
     }
+
+    fetchData();
   }, []);
+
+  if (loading) {
+    return (
+      <div>
+        <div className="table-title">
+          <h2>Investments</h2>
+        </div>
+        <div className="table-container">
+          <div className="loading-spinner-container">
+            <div className="loading-spinner" role="status"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="table-title">
+        <h2>Investments</h2>
+        <div className="error-message">{error}</div> 
+      </div>
+    );
+  }
 
   return (
     <div>

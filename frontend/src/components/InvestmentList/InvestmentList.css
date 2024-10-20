@@ -1,45 +1,48 @@
-/* InvestmentList.css */
+.table-container {
+  background-color: #f8f7f7; 
+  border: 1px solid #e0e0e0;
+  padding: 30px;
+  margin-bottom: 30px; 
+  min-height: 320px; 
+  position: relative; 
+}
 
-  /* Table Styles */
-  .table {
-    background-color: #ffffff; /* White background for the table */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: none; /* No shadow for a clean look */
-  }
-  
-  .table th {
-    background-color: #003366; /* Header in dark blue */
-    color: white; /* White text for contrast */
-    text-align: left;
-    padding: 15px; /* Padding for table headers */
-  }
-  
-  .table td {
-    color: #333; /* Dark gray for better readability */
-    padding: 15px; /* Padding for table cells */
-    vertical-align: middle;
-  }
-  
-  .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f0f8ff; /* Very light blue striping */
-  }
-  
-  /* Table Title Styles */
-  .table-title {
-    margin: 20px 0; /* Space above and below the title */
-  }
-  
-  .table-title h2 {
-    font-size: 24px; /* Same font size as the Investment Summary */
-    margin-bottom: 10px; /* Margin below the title */
-    color: #003366; /* Dark blue to match the investment summary */
-    font-weight: bold; /* Bold text for emphasis */
-  }
-  
-  /* Button Container Styles */
-  .button-container {
-    display: flex; /* Use flexbox for alignment */
-    justify-content: flex-end; /* Align items to the right */
-    margin-bottom: 20px; /* Space below the button */
-  }
-  
+.table {
+  background-color: #ffffff; 
+  border-radius: 8px; 
+  box-shadow: none; 
+}
+
+.table th {
+  background-color: #003366; 
+  color: white; 
+  text-align: left;
+  padding: 15px; 
+}
+
+.table td {
+  color: #333; 
+  padding: 15px; 
+  vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f0f8ff; 
+}
+
+.table-title {
+  margin: 20px 0; 
+}
+
+.table-title h2 {
+  font-size: 24px; 
+  margin-bottom: 10px; 
+  color: #003366; 
+  font-weight: bold; 
+}
+
+.button-container {
+  display: flex; 
+  justify-content: flex-end; 
+  margin-bottom: 20px; 
+}
