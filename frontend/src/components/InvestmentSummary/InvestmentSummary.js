@@ -24,7 +24,7 @@ export default function InvestmentSummary() {
       <div className="summary-container">
         <h2 className="summary-title">Summary</h2>
         <div className="loading-spinner-container">
-          <div className="loading-spinner"></div>
+          <div className="loading-spinner" role="status"></div>
         </div>
       </div>
     );
