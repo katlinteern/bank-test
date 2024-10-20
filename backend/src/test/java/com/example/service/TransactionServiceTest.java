@@ -6,18 +6,22 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
 
 import com.example.enums.TransactionType;
 import com.example.model.Transaction;
 
 class TransactionServiceTest {
 
+    @InjectMocks
     private TransactionService transactionService;
 
     @BeforeEach
     public void setUp() {
-        transactionService = new TransactionService();
+        MockitoAnnotations.openMocks(this);
     }
+
 
     @Test
     public void calculateCashFlow_BuyTransaction_ReturnsNegativeCashFlow() {

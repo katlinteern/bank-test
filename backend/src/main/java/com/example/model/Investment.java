@@ -22,9 +22,6 @@ public class Investment {
     @Column(nullable = false)
     private BigDecimal currentPrice = BigDecimal.ZERO;
 
-    @Column(nullable = false)
-    private int currentQuantity = 0;
-
     @OneToMany(mappedBy = "investment", cascade = CascadeType.PERSIST) // Avoid removing transactions on investment removal
     private List<Transaction> transactions = new ArrayList<>(); // Changed to List for order preservation
 
@@ -66,14 +63,6 @@ public class Investment {
 
     public void setCurrentPrice(BigDecimal currentPrice) {
         this.currentPrice = currentPrice;
-    }
-
-    public int getCurrentQuantity() {
-        return currentQuantity;
-    }
-
-    public void setCurrentQuantity(int currentQuantity) {
-        this.currentQuantity = currentQuantity;
     }
 
     public List<Transaction> getTransactions() {

@@ -17,6 +17,8 @@ import org.mockito.MockitoAnnotations;
 import com.example.dto.InvestmentResponse;
 import com.example.dto.InvestmentSummaryResponse;
 import com.example.model.Investment;
+import com.example.model.Transaction;
+import com.example.enums.TransactionType;
 import com.example.repository.InvestmentRepository;
 
 class InvestmentServiceTest {
@@ -28,11 +30,15 @@ class InvestmentServiceTest {
     private InvestmentRepository investmentRepository;
 
     @Mock
-    private CashFlowService cashFlowService; 
+    private CashFlowService cashFlowService;
+
+    @Mock
+    private TransactionService transactionService;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(transactionService.calculateTotalQuantity(any())).thenReturn(5);
     }
 
     @Test
@@ -53,8 +59,12 @@ class InvestmentServiceTest {
         investment.setId(1L);
         investment.setName("Investment A");
         investment.setCurrentPrice(BigDecimal.valueOf(10));
-        investment.setCurrentQuantity(5);
-        
+
+        Transaction transaction = new Transaction();
+        transaction.setType(TransactionType.BUY);
+        transaction.setQuantity(5);
+        investment.setTransactions(List.of(transaction));
+
         when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment));
 
         List<InvestmentResponse> investments = investmentService.getUserInvestments(userId);
@@ -83,12 +93,15 @@ class InvestmentServiceTest {
         Long userId = 1L;
         Investment investment = new Investment();
         investment.setCurrentPrice(BigDecimal.valueOf(10));
-        investment.setCurrentQuantity(5);
-        investment.setTransactions(Collections.emptyList());
+
+        Transaction transaction = new Transaction();
+        transaction.setType(TransactionType.BUY);
+        transaction.setQuantity(5);
+        investment.setTransactions(List.of(transaction));
         investment.setDividends(Collections.emptyList());
 
         when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment));
-        when(cashFlowService.extractCashFlows(any())).thenReturn(Collections.singletonList(BigDecimal.ZERO)); // Mock cash flow extraction
+        when(cashFlowService.extractCashFlows(any())).thenReturn(Collections.emptyList()); // Mock cash flow extraction
 
         InvestmentSummaryResponse summary = investmentService.getUserInvestmentSummary(userId);
 
@@ -104,7 +117,11 @@ class InvestmentServiceTest {
         investment.setId(1L);
         investment.setName("Investment A");
         investment.setCurrentPrice(BigDecimal.valueOf(10));
-        investment.setCurrentQuantity(5);
+
+        Transaction transaction = new Transaction();
+        transaction.setType(TransactionType.BUY);
+        transaction.setQuantity(5);
+        investment.setTransactions(List.of(transaction));
 
         InvestmentResponse response = investmentService.createInvestmentResponse(investment);
 
@@ -117,7 +134,11 @@ class InvestmentServiceTest {
     public void calculateTotalValue_ValidInvestment_ReturnsCorrectTotalValue() {
         Investment investment = new Investment();
         investment.setCurrentPrice(BigDecimal.valueOf(10));
-        investment.setCurrentQuantity(5);
+
+        Transaction transaction = new Transaction();
+        transaction.setType(TransactionType.BUY);
+        transaction.setQuantity(5);
+        investment.setTransactions(List.of(transaction));
 
         BigDecimal totalValue = investmentService.calculateTotalValue(investment);
 

@@ -1,6 +1,7 @@
 package com.example.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -31,68 +32,57 @@ class CashFlowServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(transactionService.calculateTotalQuantity(any())).thenReturn(Integer.valueOf(10)); // Mocking total quantity
     }
+
 
     // Tests for collectCashFlowData
     @Test
-    public void collectCashFlowData_ValidInvestment_ReturnsCashFlowData() {
+    public void collectCashFlowData_NoTransactionsOrDividends_ReturnsNoCashFlows() {
         Investment investment = new Investment();
         investment.setCurrentPrice(BigDecimal.valueOf(10));
-        investment.setCurrentQuantity(5);
         investment.setTransactions(Collections.emptyList());
         investment.setDividends(Collections.emptyList());
 
         List<CashFlowData> cashFlowData = cashFlowService.collectCashFlowData(investment);
 
-        assertEquals(1, cashFlowData.size());
-        assertEquals(BigDecimal.valueOf(50), cashFlowData.get(0).getAmount());
-    }
-
-    @Test
-    public void collectCashFlowData_NoTransactionsOrDividends_ReturnsCurrentValueOnly() {
-        Investment investment = new Investment();
-        investment.setCurrentPrice(BigDecimal.valueOf(10));
-        investment.setCurrentQuantity(5);
-        investment.setTransactions(Collections.emptyList());
-        investment.setDividends(Collections.emptyList());
-
-        List<CashFlowData> cashFlowData = cashFlowService.collectCashFlowData(investment);
-
-        assertEquals(1, cashFlowData.size());
-        assertEquals(BigDecimal.valueOf(50), cashFlowData.get(0).getAmount());
+        assertEquals(0, cashFlowData.size());
     }
 
     @Test
     public void collectCashFlowData_WithTransactionsAndDividends_ReturnsCombinedCashFlowData() {
         Investment investment = new Investment();
         investment.setCurrentPrice(BigDecimal.valueOf(10));
-        investment.setCurrentQuantity(5);
-
+    
         // Mocking a transaction
         Transaction transaction = new Transaction();
-        transaction.setType(TransactionType.BUY); 
-        transaction.setQuantity(10); 
-        transaction.setPrice(BigDecimal.valueOf(100)); 
-        transaction.setFee(BigDecimal.valueOf(5)); 
+        transaction.setType(TransactionType.BUY);
+        transaction.setQuantity(10);
+        transaction.setPrice(BigDecimal.valueOf(100));
+        transaction.setFee(BigDecimal.valueOf(5));
         transaction.setTimestamp(Instant.now().minusSeconds(7200)); // 2 hours ago
-
+    
         when(transactionService.calculateCashFlow(transaction)).thenReturn(BigDecimal.valueOf(95)); // (100 * 10) - 5
-
-         // Mocking a dividend
+    
+        // Mocking a dividend
         Dividend dividend = new Dividend();
-        dividend.setAmount(BigDecimal.valueOf(20)); 
+        dividend.setAmount(BigDecimal.valueOf(20));
         dividend.setTimestamp(Instant.now().minusSeconds(3600)); // 1 hour ago
-
+    
         investment.setTransactions(List.of(transaction));
         investment.setDividends(List.of(dividend));
-
+    
         List<CashFlowData> cashFlowData = cashFlowService.collectCashFlowData(investment);
-
+    
         assertEquals(3, cashFlowData.size());
+
         assertTrue(cashFlowData.stream().anyMatch(data -> data.getAmount().equals(BigDecimal.valueOf(95))));
         assertTrue(cashFlowData.stream().anyMatch(data -> data.getAmount().equals(BigDecimal.valueOf(20))));
-        assertTrue(cashFlowData.stream().anyMatch(data -> data.getAmount().equals(BigDecimal.valueOf(50))));
+        assertTrue(cashFlowData.stream().anyMatch(data -> data.getAmount().equals(BigDecimal.valueOf(100)))); 
+        
+        assertEquals(BigDecimal.valueOf(100), cashFlowData.get(2).getAmount());
     }
+    
 
     // Tests for filterAndSortCashFlowData
     @Test

@@ -3,6 +3,7 @@ package com.example.generator;
 import com.example.model.Dividend;
 import com.example.model.Investment;
 import com.example.repository.DividendRepository;
+import com.example.service.TransactionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,9 @@ public class DividendGenerator {
 
     @Autowired
     private DividendRepository dividendRepository;
+
+    @Autowired
+    private TransactionService transactionService;
 
     public void generateDividends(Investment investment) {
         if (investment.getTransactions() == null || investment.getTransactions().isEmpty()) {
@@ -36,7 +40,7 @@ public class DividendGenerator {
         dividend.setInvestment(investment);
         dividend.setTimestamp(start.plus(index * 90, ChronoUnit.DAYS)); // Every 90 days
         
-        BigDecimal totalValue = investment.getCurrentPrice().multiply(BigDecimal.valueOf(investment.getCurrentQuantity()));
+        BigDecimal totalValue = investment.getCurrentPrice().multiply(BigDecimal.valueOf(transactionService.calculateTotalQuantity(investment.getTransactions())));
         BigDecimal dividendAmount = totalValue.multiply(BigDecimal.valueOf(0.04)); // 4% dividend
         dividend.setAmount(dividendAmount);
         

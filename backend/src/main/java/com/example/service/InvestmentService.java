@@ -27,7 +27,10 @@ public class InvestmentService {
     InvestmentRepository investmentRepository;
 
     @Autowired
-    CashFlowService cashFlowService; // Uus CashFlowService
+    CashFlowService cashFlowService; 
+
+    @Autowired
+    TransactionService transactionService; 
 
     public List<InvestmentResponse> getUserInvestments(Long userId) {
         List<Investment> investments = investmentRepository.findAllByUserId(userId);
@@ -75,6 +78,11 @@ public class InvestmentService {
     }
     
     public BigDecimal calculateTotalValue(Investment investment) {
-        return investment.getCurrentPrice().multiply(BigDecimal.valueOf(investment.getCurrentQuantity()));
+        BigDecimal currentPrice = investment.getCurrentPrice();
+        int totalQuantity = transactionService.calculateTotalQuantity(investment.getTransactions());
+    
+        return currentPrice.multiply(BigDecimal.valueOf(totalQuantity));
     }
+    
+    
 }

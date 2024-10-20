@@ -28,9 +28,11 @@ public class CashFlowService {
         investment.getDividends().forEach(dividend -> 
             cashFlowData.add(new CashFlowData(dividend.getAmount(), dividend.getTimestamp())));
 
-        BigDecimal currentValue = investment.getCurrentPrice()
-                .multiply(BigDecimal.valueOf(investment.getCurrentQuantity()));
-        cashFlowData.add(new CashFlowData(currentValue, Instant.now()));
+        if (!cashFlowData.isEmpty()) {
+            BigDecimal currentValue = investment.getCurrentPrice()
+                    .multiply(BigDecimal.valueOf(transactionService.calculateTotalQuantity(investment.getTransactions())));
+            cashFlowData.add(new CashFlowData(currentValue, Instant.now()));
+        }
 
         return cashFlowData;
     }

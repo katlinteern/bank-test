@@ -12,6 +12,7 @@ import com.example.model.Investment;
 import com.example.model.Transaction;
 import com.example.repository.DividendRepository;
 import com.example.repository.InvestmentRepository;
+import com.example.service.TransactionService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,9 @@ public class DividendGeneratorTest {
 
     @Mock
     private InvestmentRepository investmentRepository;
+
+    @Mock
+    private TransactionService transactionService;
 
     @BeforeEach
     public void setUp() {
@@ -66,7 +70,6 @@ public class DividendGeneratorTest {
         investment.setName(name);
         investment.setCurrentPrice(BigDecimal.valueOf(price));
         investment.setUserId(1L);
-        investment.setCurrentQuantity(quantity);
         
         // Create a mock transaction
         Transaction transaction = new Transaction();
@@ -76,7 +79,7 @@ public class DividendGeneratorTest {
         return investment;
     }
 
-    // TODO test imestamp logic
+    // TODO test timestamp logic
 
     // TODO test dividend logic
 }
