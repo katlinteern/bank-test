@@ -1,4 +1,4 @@
-package com.example.dto.response;
+package com.example.dto;
 
 import java.math.BigDecimal;
 
@@ -13,6 +13,9 @@ public class InvestmentResponse {
     private String name;
     private BigDecimal totalValue;
     private BigDecimal profitability;
+
+    public InvestmentResponse() {
+    }
 
     public InvestmentResponse(Long id, String name, BigDecimal totalValue, BigDecimal profitability) {
         this.id = id;

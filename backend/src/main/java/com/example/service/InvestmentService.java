@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.dto.CashFlowData;
-import com.example.dto.response.InvestmentResponse;
-import com.example.dto.response.InvestmentSummaryResponse;
+import com.example.dto.InvestmentResponse;
+import com.example.dto.InvestmentSummaryResponse;
 import com.example.model.Investment;
 import com.example.repository.InvestmentRepository;
 
@@ -52,7 +52,6 @@ public class InvestmentService {
             return new InvestmentSummaryResponse(BigDecimal.ZERO, BigDecimal.ZERO, 0);
         }
     
-        // Use the same method to calculate for all investments
         return calculateInvestmentSummary(investments);
     }
     
