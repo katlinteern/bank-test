@@ -2,9 +2,7 @@ package com.example.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +27,7 @@ public class InvestmentService {
     InvestmentRepository investmentRepository;
 
     @Autowired
-    TransactionService transactionService;
+    CashFlowService cashFlowService; // Uus CashFlowService
 
     public List<InvestmentResponse> getUserInvestments(Long userId) {
         List<Investment> investments = investmentRepository.findAllByUserId(userId);
@@ -66,55 +64,17 @@ public class InvestmentService {
     
         for (Investment investment : investments) {
             totalValue = totalValue.add(calculateTotalValue(investment));
-            cashFlowData.addAll(collectCashFlowData(investment));
+            cashFlowData.addAll(cashFlowService.collectCashFlowData(investment)); // Kasuta CashFlowService
         }
     
-        cashFlowData = filterAndSortCashFlowData(cashFlowData);
-        BigDecimal totalXirr = cashFlowData.isEmpty() ? BigDecimal.ZERO : calculateXirr(extractDates(cashFlowData), extractCashFlows(cashFlowData));
+        cashFlowData = cashFlowService.filterAndSortCashFlowData(cashFlowData); // Kasuta CashFlowService
+        BigDecimal totalXirr = cashFlowData.isEmpty() ? BigDecimal.ZERO : calculateXirr(cashFlowService.extractDates(cashFlowData), cashFlowService.extractCashFlows(cashFlowData)); // Kasuta CashFlowService
         BigDecimal profitability = totalXirr.multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
     
         return new InvestmentSummaryResponse(totalValue, profitability, investments.size());
     }
     
-    private BigDecimal calculateTotalValue(Investment investment) {
+    public BigDecimal calculateTotalValue(Investment investment) {
         return investment.getCurrentPrice().multiply(BigDecimal.valueOf(investment.getCurrentQuantity()));
-    }
-    
-    
-    private List<CashFlowData> collectCashFlowData(Investment investment) {
-        List<CashFlowData> cashFlowData = new ArrayList<>();
-
-        investment.getTransactions().forEach(transaction -> 
-            cashFlowData.add(new CashFlowData(transactionService.calculateCashFlow(transaction), transaction.getTimestamp())));
-
-        investment.getDividends().forEach(dividend -> 
-            cashFlowData.add(new CashFlowData(dividend.getAmount(), dividend.getTimestamp())));
-
-        BigDecimal currentValue = investment.getCurrentPrice()
-                .multiply(BigDecimal.valueOf(investment.getCurrentQuantity()));
-        cashFlowData.add(new CashFlowData(currentValue, Instant.now()));
-
-        return cashFlowData;
-    }
-
-    private List<CashFlowData> filterAndSortCashFlowData(List<CashFlowData> cashFlowData) {
-        return cashFlowData.stream()
-                .filter(cashFlow -> cashFlow.getDate().isBefore(Instant.now())
-                        || cashFlow.getDate().equals(Instant.now())) // filter out future dates
-                .filter(cashFlow -> cashFlow.getAmount().compareTo(BigDecimal.ZERO) != 0) // filter out zero amounts
-                .sorted(Comparator.comparing(CashFlowData::getDate)) // sort by date
-                .collect(Collectors.toList());
-    }
-
-    private static List<Instant> extractDates(List<CashFlowData> cashFlowDataList) {
-        return cashFlowDataList.stream()
-                .map(CashFlowData::getDate)
-                .collect(Collectors.toList());
-    }
-
-    private static List<BigDecimal> extractCashFlows(List<CashFlowData> cashFlowDataList) {
-        return cashFlowDataList.stream()
-                .map(CashFlowData::getAmount)
-                .collect(Collectors.toList());
     }
 }
