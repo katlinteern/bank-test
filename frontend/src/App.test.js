@@ -1,5 +1,4 @@
-// App.test.js
-
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
@@ -8,8 +7,6 @@ test('renders NavBar component', () => {
   const navElement = screen.getByText('List');
   expect(navElement).toBeInTheDocument();
 });
-
-
 
 test('renders Investments component', () => {
   render(<App />);
