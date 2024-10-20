@@ -1,8 +1,16 @@
+// App.test.js
+
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders NavBar component', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const navElement = screen.getByText('List');
+  expect(navElement).toBeInTheDocument();
+});
+
+
+
+test('renders Investments component', () => {
+  render(<App />);
 });

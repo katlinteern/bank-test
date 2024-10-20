@@ -1,4 +1,3 @@
-import axios from "axios";
 
 const baseURL = process.env.REACT_APP_API_BASE_URL;
 
@@ -8,8 +7,9 @@ const userId = 1; // TODO change when developing login
 
 export const getUserInvestments = async () => {
   try {
-    const response = await axios.get(`${apiUrl}/user/${userId}`);
-    return response.data;
+    const response = await fetch(`${apiUrl}/user/${userId}`);
+    const data = await response.json();
+    return data;
   } catch (error) {
     throw error;
   }
@@ -17,8 +17,9 @@ export const getUserInvestments = async () => {
 
 export const getUserInvestmentSummary = async () => {
   try {
-    const response = await axios.get(`${apiUrl}/user/${userId}/summary`);
-    return response.data;
+    const response = await fetch(`${apiUrl}/user/${userId}/summary`);
+    const data = await response.json();
+    return data;
   } catch (error) {
     throw error;
   }

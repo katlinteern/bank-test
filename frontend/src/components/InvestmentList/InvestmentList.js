@@ -36,7 +36,7 @@ export default function InvestmentList() {
         </thead>
         <tbody>
           {investments.map(({ id, ...investment }) => (
-            <tr>
+            <tr key={id}>
               <td>{investment.name}</td>
               <td>{investment.totalValue}</td>
               <td>{investment.profitability} %</td>
