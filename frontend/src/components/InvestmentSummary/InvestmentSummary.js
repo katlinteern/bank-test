@@ -39,12 +39,12 @@ export default function InvestmentSummary() {
           <SummaryCard 
             icon="&#128181;" 
             name="Current value" 
-            value={summary.totalValue} 
+            value={`${summary.totalValue} €`}  
           />
           <SummaryCard 
             icon="&#128200;" 
             name="Profitability" 
-            value={`${summary.profitability}%`} 
+            value={`${summary.profitability} %`} 
           />
           <SummaryCard 
             icon="&#128202;" 

@@ -29,16 +29,16 @@ export default function InvestmentList() {
       <table className="table table-striped">
         <thead>
           <tr>
-            <th scope="col">Title</th>
-            <th scope="col">Price</th>
-            <th scope="col">Quantity</th>
+            <th scope="col">Name</th>
+            <th scope="col">Total value</th>
+            <th scope="col">Profitability</th>
           </tr>
         </thead>
         <tbody>
           {investments.map(({ id, ...investment }) => (
             <tr key={id}>
               <td>{investment.name}</td>
-              <td>{investment.totalValue}</td>
+              <td>{investment.totalValue} €</td>
               <td>{investment.profitability} %</td>
             </tr>
           ))}
