@@ -3,6 +3,8 @@ package com.example.utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.example.util.XirrCalculator;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;

@@ -1,5 +1,7 @@
 package com.example.service;
 
+import static com.example.util.XirrCalculator.calculateXirr;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -16,8 +18,6 @@ import com.example.dto.InvestmentResponse;
 import com.example.dto.InvestmentSummaryResponse;
 import com.example.model.Investment;
 import com.example.repository.InvestmentRepository;
-
-import static com.example.utils.XirrCalculator.calculateXirr;
 
 @Service
 public class InvestmentService {
