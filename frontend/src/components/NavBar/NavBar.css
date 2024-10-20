@@ -35,6 +35,7 @@
 .navbar-vertical .nav-link:hover {
     background-color: #d9d9d9; /* Slightly darker gray on hover */
     color: #000000; /* Black text for contrast on hover */
+    cursor: pointer;
 }
 
 .navbar-vertical .nav-link.active {

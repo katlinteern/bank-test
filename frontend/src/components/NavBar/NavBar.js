@@ -1,17 +1,33 @@
-import { NavLink } from "react-router-dom";
-import './NavBar.css'; 
+import { Link } from "react-scroll"; 
+import './NavBar.css';
 
 export default function NavBar() {
   return (
-    <nav className="navbar navbar-vertical navbar-dark bg-custom"> {/* Use custom class for vertical navbar */}
+    <nav className="navbar navbar-vertical navbar-dark bg-custom"> 
       <div className="container-fluid">
         <div className="navbar-collapse">
-          <ul className="navbar-nav flex-column"> {/* Use flex-column for vertical layout */}
+          <ul className="navbar-nav flex-column"> 
             <li className="nav-item">
-              <NavLink className="nav-link" aria-current="page" to="/">List</NavLink>
+              <Link
+                className="nav-link"
+                to="summary"
+                smooth={true}
+                duration={100}
+              >
+                Summary
+              </Link>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link" to="/new">Add</NavLink>
+              <Link
+                className="nav-link"
+                to="list"
+                smooth={true}
+                duration={100}
+              >
+                Investments
+              </Link>
+            </li>
+            <li className="nav-item">
             </li>
           </ul>
         </div>
