@@ -8,6 +8,6 @@ test('renders NavBar component', () => {
   expect(navElement).toBeInTheDocument();
 });
 
-test('renders Investments component', () => {
+test('renders Portfolio component', () => {
   render(<App />);
 });

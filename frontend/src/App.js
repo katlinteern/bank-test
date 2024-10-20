@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavBar from "./components/NavBar/NavBar";
-import Investments from "./components/Investments"; 
+import Portfolio from "./components/Portfolio/Portfolio"; 
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
                 <h2>Portfolio</h2>
               </div>
               <Routes>
-                <Route path="/" element={<Investments />} />
+                <Route path="/" element={<Portfolio />} />
               </Routes>
             </div>
           </div>
