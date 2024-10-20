@@ -1,19 +1,16 @@
-import React, { useContext, useEffect } from 'react';
-import InvestmentTableRow from '../InvestmentTableRow';
-import { InvestmentContext } from '../../context/InvestmentContext';
+import React, { useState, useEffect } from 'react';
 import { getUserInvestments } from '../../services/ApiService';
-import { NavLink } from 'react-router-dom';
 import './InvestmentList.css';
 
 export default function InvestmentList() {
-  const { investments, updateInvestments } = useContext(InvestmentContext);
+  const [investments, setInvestments] = useState([]);
 
   useEffect(() => {
-    if (investments.length === 0) {  
+    if (investments.length === 0) {
       async function fetchData() {
         try {
           const investments = await getUserInvestments();
-          updateInvestments(investments);
+          setInvestments(investments);
         } catch (error) {
           console.error('Error fetching investments:', error);
         }
@@ -21,7 +18,7 @@ export default function InvestmentList() {
 
       fetchData();
     }
-  }, [updateInvestments]);  
+  }, []);
 
   return (
     <div>
@@ -39,7 +36,11 @@ export default function InvestmentList() {
         </thead>
         <tbody>
           {investments.map(({ id, ...investment }) => (
-            <InvestmentTableRow key={id} {...investment} />
+            <tr>
+              <td>{investment.name}</td>
+              <td>{investment.totalValue}</td>
+              <td>{investment.profitability} %</td>
+            </tr>
           ))}
         </tbody>
       </table>

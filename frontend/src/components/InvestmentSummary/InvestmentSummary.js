@@ -4,13 +4,13 @@ import SummaryCard from '../SummaryCard/SummaryCard'; // Import new SummaryCard 
 import './InvestmentSummary.css';
 
 export default function InvestmentSummary() {
-  const [portfolio, setPortfolio] = useState(null);
+  const [summary, setSummary] = useState(null);
 
   useEffect(() => { 
       async function fetchData() {
         try {
-          const portfolio = await getUserInvestmentSummary();
-          setPortfolio(portfolio);
+          const summary = await getUserInvestmentSummary();
+          setSummary(summary);
         } catch (error) {
           console.error('Error fetching investments:', error);
         }
@@ -19,7 +19,7 @@ export default function InvestmentSummary() {
       fetchData();
   }, []);  
 
-  if (!portfolio) {
+  if (!summary) {
     return (
       <div className="summary-container">
         <h2 className="summary-title">Summary</h2>
@@ -39,17 +39,17 @@ export default function InvestmentSummary() {
           <SummaryCard 
             icon="&#128181;" 
             name="Current value" 
-            value={portfolio.totalValue} 
+            value={summary.totalValue} 
           />
           <SummaryCard 
             icon="&#128200;" 
             name="Profitability" 
-            value={`${portfolio.profitability}%`} 
+            value={`${summary.profitability}%`} 
           />
           <SummaryCard 
             icon="&#128202;" 
             name="Number of investments" 
-            value={portfolio.numberOfInvestments} 
+            value={summary.numberOfInvestments} 
           />
         </div>
       </div>

@@ -3,12 +3,10 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavBar from "./components/NavBar/NavBar";
 import Investments from "./components/Investments"; 
-import { InvestmentListProvider } from "./context/InvestmentContext";
 
 function App() {
   return (
     <Router>
-      <InvestmentListProvider>
         <div className="container-fluid">
           <div className="row">
             <div className="col-md-2">
@@ -25,7 +23,6 @@ function App() {
             </div>
           </div>
         </div>
-      </InvestmentListProvider>
     </Router>
   );
 }
