@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import InvestmentTableRow from '../InvestmentTableRow';
 import { InvestmentContext } from '../../context/InvestmentContext';
-import { getInvestmentsByUserId } from '../../services/ApiService';
+import { getUserInvestments } from '../../services/ApiService';
 import { NavLink } from 'react-router-dom';
 import './InvestmentList.css';
 
@@ -12,7 +12,7 @@ export default function InvestmentList() {
     if (investments.length === 0) {  
       async function fetchData() {
         try {
-          const investments = await getInvestmentsByUserId();
+          const investments = await getUserInvestments();
           updateInvestments(investments);
         } catch (error) {
           console.error('Error fetching investments:', error);
@@ -25,14 +25,8 @@ export default function InvestmentList() {
 
   return (
     <div>
-      {/* Wrapper for the button to align it to the right */}
-      <div className="button-container">
-        <NavLink className="btn btn-primary" to="/new">Add</NavLink>
-      </div>
-
-      {/* Add a title for the table */}
       <div className="table-title">
-        <h2>Table</h2>
+        <h2>Investments</h2>
       </div>
 
       <table className="table table-striped">

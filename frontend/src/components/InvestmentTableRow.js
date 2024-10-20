@@ -1,11 +1,11 @@
 
-export default function InvestmentTableRow ({id, name}) {
+export default function InvestmentTableRow ({name, totalValue, profitability}) {
 
   return(
     <tr>
       <td>{name}</td>
-      <td>100</td>
-      <td>100</td>
+      <td>{totalValue}</td>
+      <td>{profitability} %</td>
     </tr>
   );
 }

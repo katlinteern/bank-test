@@ -1,9 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import CreateInvestmentForm from './components/CreateInvestmentForm';
 import NavBar from "./components/NavBar/NavBar";
-import Investments from "./components/Investments"; // This now includes both InvestmentSummary and InvestmentList
+import Investments from "./components/Investments"; 
 import { InvestmentListProvider } from "./context/InvestmentContext";
 
 function App() {
@@ -18,11 +17,10 @@ function App() {
 
             <div className="col-md-10">
               <div className="header-container">
-                <h2>My portfolio</h2>
+                <h2>Portfolio</h2>
               </div>
               <Routes>
-                <Route path="/" element={<Investments />} /> {/* This route now includes both components */}
-                <Route path="/new" element={<CreateInvestmentForm />} />
+                <Route path="/" element={<Investments />} />
               </Routes>
             </div>
           </div>

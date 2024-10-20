@@ -6,25 +6,7 @@ const apiUrl = `${baseURL}/api/investments`;
 
 const userId = 1; // TODO change when developing login
 
-export const getInvestments = async () => {
-  try {
-    const response = await axios.get(apiUrl);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
-
-export const createInvestment = async (investment) => {
-  try {
-    const response = await axios.post(apiUrl, investment);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
-
-export const getInvestmentsByUserId = async () => {
+export const getUserInvestments = async () => {
   try {
     const response = await axios.get(`${apiUrl}/user/${userId}`);
     return response.data;

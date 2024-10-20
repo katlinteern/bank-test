@@ -22,7 +22,7 @@ export default function InvestmentSummary() {
   if (!portfolio) {
     return (
       <div className="summary-container">
-        <h2 className="summary-title">Investment Summary</h2>
+        <h2 className="summary-title">Summary</h2>
         <div className="loading-spinner-container">
           <div className="loading-spinner"></div>
         </div>
@@ -33,23 +33,18 @@ export default function InvestmentSummary() {
   return (
     <div>
       <div className="summary-container">
-        <h2 className="summary-title">Investment Summary</h2>
+        <h2 className="summary-title">Summary</h2>
         <div className="summary-cards">
           {/* Use SummaryCard component for each card */}
           <SummaryCard 
             icon="&#128181;" 
-            name="Portfolio value" 
+            name="Current value" 
             value={portfolio.totalValue} 
           />
           <SummaryCard 
-            icon="&#128176;" 
-            name="Total profit" 
-            value={portfolio.totalProfit} 
-          />
-          <SummaryCard 
             icon="&#128200;" 
-            name="Profit percentage" 
-            value={`${portfolio.profitPercentage}%`} 
+            name="Profitability" 
+            value={`${portfolio.profitability}%`} 
           />
           <SummaryCard 
             icon="&#128202;" 

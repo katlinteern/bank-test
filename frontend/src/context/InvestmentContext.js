@@ -10,12 +10,8 @@ export const InvestmentListProvider = ({ children }) => {
     setInvestments(investments)
   }
 
-  const addInvestment = (investment) => {
-    setInvestments([...investments, investment]);
-  }
-
   return (
-    <InvestmentContext.Provider value={{ investments, investment, addInvestment, updateInvestments }}>
+    <InvestmentContext.Provider value={{ investments, investment, updateInvestments }}>
       {children}
     </InvestmentContext.Provider>
   );
