@@ -51,7 +51,7 @@ export default function Summary() {
           <SummaryCard 
             icon="&#128202;" 
             name="Number of investments" 
-            value={summary.numberOfInvestments} 
+            value={summary?.numberOfInvestments} 
           />
         </div>
       </div>
