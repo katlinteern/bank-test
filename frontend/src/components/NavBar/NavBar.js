@@ -27,8 +27,6 @@ export default function NavBar() {
                 Investments
               </Link>
             </li>
-            <li className="nav-item">
-            </li>
           </ul>
         </div>
       </div>

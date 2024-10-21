@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getUserInvestments } from '../../services/ApiService';
 import './InvestmentList.css';
+import InvestmentBarChart from '../InvestmentBarChart/InvestmentBarChart';
 
 export default function InvestmentList() {
   const [investments, setInvestments] = useState([]);
@@ -71,6 +72,8 @@ export default function InvestmentList() {
           ))}
         </tbody>
       </table>
+
+      <InvestmentBarChart investments={investments} />
     </div>
   );
 }
