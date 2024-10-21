@@ -5,7 +5,8 @@ body {
   font-family: 'Arial', sans-serif; /* Clean and professional font */
   background-color: #eaeaea !important; /* Soft light background for a modern touch */
   margin: 0;
-  padding: 0;
+  padding-bottom: 80px;
+  padding-right: 20px;
 }
 
 /* Responsive Design */
@@ -27,25 +28,10 @@ body {
   }
 }
 
-/* Buttons */
-.btn-primary {
-  background-color: #0056b3; /* Bright blue buttons */
-  border-color: #0056b3; /* Border color */
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-  font-size: 16px;
-  border-radius: 5px; /* Rounded edges */
-}
-
-.btn-primary:hover {
-  background-color: #003d7a; /* Darker blue on hover */
-  border-color: #003d7a; /* Matching border color on hover */
-}
-
 /* Header Section */
 .header-container {
-  background-color: #003366; /* Rich dark blue for the header */
+  background-color: #394a57; /* Rich dark blue for the header */
   padding: 30px;
-  border-radius: 10px;
   margin-bottom: 30px; /* Space below the summary area */
   color: white;
   box-shadow: none; /* Remove shadows for a cleaner look */

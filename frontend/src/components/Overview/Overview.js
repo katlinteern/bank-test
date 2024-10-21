@@ -20,13 +20,13 @@ const Overview = ({ investments }) => {
       {
         label: 'Total Value (in €)',
         data: investments.map(investment => investment.totalValue),
-        backgroundColor: '#8884d8',
+        backgroundColor: '#6286bb',
         yAxisID: 'y',
       },
       {
         label: 'Profitability (%)',
         data: investments.map(investment => investment.profitability),
-        backgroundColor: '#82ca9d',
+        backgroundColor: '#7cef8c',
         yAxisID: 'y1',
       },
     ],

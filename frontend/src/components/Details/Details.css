@@ -14,7 +14,7 @@
 }
 
 .table th {
-  background-color: #003366; 
+  background-color: #394a57; 
   color: white; 
   text-align: left;
   padding: 15px; 
@@ -37,8 +37,9 @@
 .table-title h2 {
   font-size: 24px; 
   margin-bottom: 10px; 
-  color: #003366; 
+  color: #394a57; 
   font-weight: bold; 
+  margin-top: 50px;
 }
 
 .button-container {

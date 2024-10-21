@@ -3,7 +3,7 @@
 /* Vertical Navbar */
 .navbar-vertical {
     height: 100vh; /* Full height */
-    background-color: #d7d7d7; /* Lighter gray for a fresh look */
+    background-color: #394a57; /* Lighter gray for a fresh look */
     padding-top: 40px; /* Padding at the top */
     position: fixed; /* Fixed to the left side */
     left: 0;
@@ -25,11 +25,9 @@
 
 .navbar-vertical .nav-link {
     display: block;
-    color: #555555; /* Darker gray for nav links */
+    color: #ece9e9; /* Darker gray for nav links */
     font-size: 18px;
     padding: 12px 20px;
-    border-radius: 5px; /* Rounded edges for a modern look */
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .navbar-vertical .nav-link:hover {
