@@ -1,19 +1,19 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import InvestmentSummary from '../InvestmentSummary'; 
+import Summary from '../Summary'; 
 import { getUserInvestmentSummary } from '../../../services/ApiService';
 
 jest.mock('../../../services/ApiService', () => ({
   getUserInvestmentSummary: jest.fn(),
 }));
 
-describe('InvestmentSummary', () => {
+describe('Summary', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders loading state initially', () => {
-    render(<InvestmentSummary />);
+    render(<Summary />);
   
     expect(screen.getByText(/summary/i)).toBeInTheDocument();
     expect(screen.getByRole('status')).toBeInTheDocument(); 
@@ -28,7 +28,7 @@ describe('InvestmentSummary', () => {
 
     getUserInvestmentSummary.mockResolvedValueOnce(mockSummary);
 
-    render(<InvestmentSummary />);
+    render(<Summary />);
 
     await waitFor(() => expect(screen.getByText(/current value/i)).toBeInTheDocument());
 
@@ -43,7 +43,7 @@ describe('InvestmentSummary', () => {
   it('handles API errors gracefully', async () => {
     getUserInvestmentSummary.mockRejectedValueOnce(new Error('Failed to fetch'));
 
-    render(<InvestmentSummary />);
+    render(<Summary />);
 
     await waitFor(() => expect(screen.getByText(/summary/i)).toBeInTheDocument());
 

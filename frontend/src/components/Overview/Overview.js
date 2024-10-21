@@ -3,15 +3,15 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(
-  CategoryScale, 
-  LinearScale,   
-  BarElement,     
-  Title,        
-  Tooltip,       
-  Legend       
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
 );
 
-const InvestmentBarChart = ({ investments }) => {
+const Overview = ({ investments }) => {
   const labels = investments.map(investment => investment.name);
 
   const data = {
@@ -21,13 +21,13 @@ const InvestmentBarChart = ({ investments }) => {
         label: 'Total Value (in €)',
         data: investments.map(investment => investment.totalValue),
         backgroundColor: '#8884d8',
-        yAxisID: 'y',  
+        yAxisID: 'y',
       },
       {
         label: 'Profitability (%)',
         data: investments.map(investment => investment.profitability),
         backgroundColor: '#82ca9d',
-        yAxisID: 'y1', 
+        yAxisID: 'y1',
       },
     ],
   };
@@ -37,10 +37,6 @@ const InvestmentBarChart = ({ investments }) => {
     plugins: {
       legend: {
         position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Investments Overview (Total Value & Profitability)',
       },
     },
     scales: {
@@ -60,13 +56,20 @@ const InvestmentBarChart = ({ investments }) => {
           text: 'Profitability (%)',
         },
         grid: {
-          drawOnChartArea: false, 
+          drawOnChartArea: false,
         },
       },
     },
   };
 
-  return <Bar data={data} options={options} />;
+  return (
+    <div>
+      <div className="table-title">
+        <h2>Overview</h2>
+      </div>
+      <Bar data={data} options={options} />
+    </div>
+  );
 };
 
-export default InvestmentBarChart;
+export default Overview;

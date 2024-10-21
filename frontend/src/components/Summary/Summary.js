@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { getUserInvestmentSummary } from '../../services/ApiService';
-import SummaryCard from '../SummaryCard/SummaryCard'; // Import new SummaryCard component
-import './InvestmentSummary.css';
+import SummaryCard from '../SummaryCard/SummaryCard';
+import './Summary.css';
 
-export default function InvestmentSummary() {
+export default function Summary() {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
 

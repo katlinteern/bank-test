@@ -1,15 +1,15 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import InvestmentList from '../InvestmentList';
+import Details from '../Details';
 import { getUserInvestments } from '../../../services/ApiService';
 
 jest.mock('../../../services/ApiService');
 
-describe('InvestmentList Component', () => {
+describe('Details Component', () => {
   test('renders loading spinner while fetching data', () => {
     getUserInvestments.mockResolvedValueOnce([]); // Mock empty data
 
-    render(<InvestmentList />);
+    render(<Details />);
     
     // Check for the loading spinner
     const loadingSpinner = screen.getByRole('status');
@@ -28,7 +28,7 @@ describe('InvestmentList Component', () => {
     
     getUserInvestments.mockResolvedValueOnce(mockInvestments); 
 
-    render(<InvestmentList />);
+    render(<Details />);
     
     await waitFor(() => {
       expect(screen.queryByRole('status')).not.toBeInTheDocument(); 
@@ -48,7 +48,7 @@ describe('InvestmentList Component', () => {
   test('handles error while fetching investments', async () => {
     getUserInvestments.mockRejectedValueOnce(new Error('Failed to fetch'));
   
-    render(<InvestmentList />);
+    render(<Details />);
     
     await waitFor(() => {
       expect(screen.queryByRole('status')).not.toBeInTheDocument(); 
