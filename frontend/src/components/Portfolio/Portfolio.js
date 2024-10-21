@@ -11,7 +11,7 @@ const Portfolio = () => {
     async function fetchData() {
       try {
         const investments = await getUserInvestments();
-        setInvestments(investments);  // No need to wrap with act here
+        setInvestments(investments);  
       } catch (error) {
         console.error('Error fetching investments:', error);
       }
