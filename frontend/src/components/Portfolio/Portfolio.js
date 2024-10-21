@@ -28,11 +28,11 @@ const Portfolio = () => {
 
       {investments.length > 0 && (
         <>
-          <div id="chart">
-            <Overview investments={investments} />
-          </div>
           <div id="details">
             <Details investments={investments} />
+          </div>
+          <div id="chart">
+            <Overview investments={investments} />
           </div>
         </>
       )}
