@@ -27,7 +27,7 @@ public class XirrCalculator {
         double rate = DEFAULT_RATE;
 
         for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-            if (!Validator.isRateValid(rate)) {
+            if (rate <= -1.0) {
                 throw new IllegalArgumentException("Rate is invalid (<= -1).");
             }
 
@@ -36,7 +36,7 @@ public class XirrCalculator {
 
             logger.info("Iteration {}: rate = {}, NPV = {}, NPV derivative = {}", iteration, rate, npv, npvDerivative);
 
-            if (Validator.isInvalidNpvOrDerivative(npv, npvDerivative)) {
+            if (isInvalidNpvOrDerivative(npv, npvDerivative)) {
                 if (iteration == 0) {
                     throw new IllegalArgumentException("Invalid NPV or derivative at iteration " + iteration);
                 }
@@ -46,7 +46,7 @@ public class XirrCalculator {
 
             double newRate = rate - npv / npvDerivative;
 
-            if (Validator.isRateConverged(rate, newRate, PRECISION)) {
+            if (Math.abs(newRate - rate) < PRECISION) {
                 logger.info("XIRR calculation successful. Final rate: {}", newRate);
                 return BigDecimal.valueOf(newRate);
             }
@@ -81,5 +81,10 @@ public class XirrCalculator {
             }
         }
         return (npvDerivative == 0) ? SMALL_DERIVATIVE : npvDerivative;
+    }
+
+    private static boolean isInvalidNpvOrDerivative(Double npv, Double npvDerivative) {
+        return npv == null || npvDerivative == null || Double.isNaN(npv) || Double.isInfinite(npv)
+                || Double.isNaN(npvDerivative) || Double.isInfinite(npvDerivative);
     }
 }

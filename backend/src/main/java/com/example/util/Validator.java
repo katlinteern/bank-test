@@ -39,21 +39,7 @@ public class Validator {
         }
         return true;
     }
-
-    public static boolean isRateValid(double rate) {
-        if (rate <= -1.0) {
-            logger.warn("Rate is less than or equal to -1. Returning null.");
-            return false;
-        }
-        return true;
-    }
     
-    public static boolean isInvalidNpvOrDerivative(Double npv, Double npvDerivative) {
-        return npv == null || npvDerivative == null || Double.isNaN(npv) || Double.isInfinite(npv)
-                || Double.isNaN(npvDerivative) || Double.isInfinite(npvDerivative);
-    }
+  
 
-    public static boolean isRateConverged(double rate, double newRate, double precision) {
-        return Math.abs(newRate - rate) < precision;
-    }
 }
