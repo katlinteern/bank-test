@@ -28,10 +28,10 @@ public class InvestmentService {
     InvestmentRepository investmentRepository;
 
     @Autowired
-    CashFlowService cashFlowService; 
+    CashFlowService cashFlowService;
 
     @Autowired
-    TransactionService transactionService; 
+    TransactionService transactionService;
 
     public List<InvestmentResponse> getUserInvestments(Long userId) {
         List<Investment> investments = investmentRepository.findAllByUserId(userId);
@@ -48,18 +48,21 @@ public class InvestmentService {
     public InvestmentSummaryResponse getUserInvestmentSummary(Long userId) {
         List<Investment> investments = investmentRepository.findAllByUserId(userId);
         logger.info("Found {} investments for user ID: {}", investments.size(), userId);
-    
+
         if (investments.isEmpty()) {
             logger.warn("No investments available for user ID: {}", userId);
             return new InvestmentSummaryResponse(BigDecimal.ZERO, BigDecimal.ZERO, 0);
         }
-    
+
         return calculateInvestmentSummary(investments);
     }
-    
+
     public InvestmentResponse createInvestmentResponse(Investment investment) {
         InvestmentSummaryResponse summary = calculateInvestmentSummary(List.of(investment));
-        return new InvestmentResponse(investment.getId(), investment.getName(), summary.getTotalValue(), summary.getProfitability());
+        int quantity = transactionService.calculateTotalQuantity(investment.getTransactions());
+        
+        return new InvestmentResponse(investment.getId(), investment.getName(), summary.getTotalValue(),
+                summary.getProfitability(), investment.getCurrentPrice(), quantity);
     }
 
     private InvestmentSummaryResponse calculateInvestmentSummary(List<Investment> investments) {
@@ -68,17 +71,19 @@ public class InvestmentService {
 
         for (Investment investment : investments) {
             totalValue = totalValue.add(calculateTotalValue(investment));
-            cashFlowData.addAll(cashFlowService.collectCashFlowData(investment)); 
+            cashFlowData.addAll(cashFlowService.collectCashFlowData(investment));
         }
 
         cashFlowData = cashFlowService.filterAndSortCashFlowData(cashFlowData);
-        
+
         BigDecimal totalXirr;
         try {
-            totalXirr = cashFlowData.isEmpty() ? BigDecimal.ZERO : calculateXirr(cashFlowService.extractDates(cashFlowData), cashFlowService.extractCashFlows(cashFlowData));
+            totalXirr = cashFlowData.isEmpty() ? BigDecimal.ZERO
+                    : calculateXirr(cashFlowService.extractDates(cashFlowData),
+                            cashFlowService.extractCashFlows(cashFlowData));
         } catch (IllegalArgumentException e) {
             logger.warn("XIRR calculation failed: {}", e.getMessage());
-            totalXirr = null; 
+            totalXirr = null;
         }
 
         BigDecimal profitability = Optional.ofNullable(totalXirr)
@@ -88,13 +93,11 @@ public class InvestmentService {
         return new InvestmentSummaryResponse(totalValue, profitability, investments.size());
     }
 
-    
     public BigDecimal calculateTotalValue(Investment investment) {
         BigDecimal currentPrice = investment.getCurrentPrice();
         int totalQuantity = transactionService.calculateTotalQuantity(investment.getTransactions());
-    
+
         return currentPrice.multiply(BigDecimal.valueOf(totalQuantity));
     }
-    
-    
+
 }
