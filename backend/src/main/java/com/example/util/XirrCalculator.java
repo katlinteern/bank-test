@@ -30,7 +30,7 @@ public class XirrCalculator {
             Double npv = calculateNpv(rate, dates, cashFlows);
             Double npvDerivative = calculateNpvDerivative(rate, dates, cashFlows);
 
-            logIterationDetails(iteration, rate, npv, npvDerivative);
+            logger.info("Iteration {}: rate = {}, NPV = {}, NPV derivative = {}", iteration, rate, npv, npvDerivative);
 
             if (isInvalidNpvOrDerivative(npv, npvDerivative)) {
                 logger.warn("Invalid NPV or derivative at iteration {}. Returning last known rate.", iteration);
@@ -49,10 +49,6 @@ public class XirrCalculator {
 
         logger.warn("Max iterations reached. Returning last known rate: {}", rate);
         return BigDecimal.valueOf(rate);
-    }
-
-    private static void logIterationDetails(int iteration, double rate, Double npv, Double npvDerivative) {
-        logger.info("Iteration {}: rate = {}, NPV = {}, NPV derivative = {}", iteration, rate, npv, npvDerivative);
     }
 
     private static boolean isInvalidNpvOrDerivative(Double npv, Double npvDerivative) {
