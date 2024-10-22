@@ -11,7 +11,6 @@ import com.example.model.Dividend;
 import com.example.model.Investment;
 import com.example.model.Transaction;
 import com.example.repository.DividendRepository;
-import com.example.repository.InvestmentRepository;
 import com.example.service.TransactionService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -27,9 +26,6 @@ public class DividendGeneratorTest {
 
     @Mock
     private DividendRepository dividendRepository;
-
-    @Mock
-    private InvestmentRepository investmentRepository;
 
     @Mock
     private TransactionService transactionService;
@@ -59,10 +55,52 @@ public class DividendGeneratorTest {
         emptyInvestment.setName("Empty Investment");
         emptyInvestment.setCurrentPrice(BigDecimal.valueOf(100));
         emptyInvestment.setUserId(1L);
-        emptyInvestment.setTransactions(Collections.emptyList()); // No transactions
-
+        emptyInvestment.setTransactions(Collections.emptyList()); 
+    
         dividendGenerator.generateDividends(emptyInvestment);
-        verify(dividendRepository, never()).save(any(Dividend.class)); // No dividends should be generated
+        
+        verify(dividendRepository, never()).save(any(Dividend.class));
+    }
+
+    @Test
+    public void generateDividends_withZeroQuantityTransaction_doesNotCreateDividends() {
+        Investment investment = createMockInvestment("Fund A", 100, 0); 
+
+        dividendGenerator.generateDividends(investment);
+
+        verify(dividendRepository, never()).save(any(Dividend.class)); 
+    }
+
+    @Test
+    public void generateDividends_withNegativeInvestmentPrice_doesNotCreateDividends() {
+        Investment investment = createMockInvestment("Fund A", -100, 10); 
+
+        dividendGenerator.generateDividends(investment);
+
+        verify(dividendRepository, never()).save(any(Dividend.class)); 
+    }
+
+    @Test
+    public void generateDividends_withNullAttributes_doesNotCreateDividends() {
+        Investment investment = new Investment();
+        investment.setName("Fund A");
+        investment.setCurrentPrice(null); 
+        investment.setTransactions(null); 
+
+        dividendGenerator.generateDividends(investment); 
+
+        verify(dividendRepository, never()).save(any(Dividend.class));
+    }
+
+    @Test
+    public void generateDividends_correctDividendAmountCalculation() {
+        Investment investment = createMockInvestment("Fund A", 100, 10);
+
+        when(transactionService.calculateTotalQuantity(any())).thenReturn(10); ; 
+
+        dividendGenerator.generateDividends(investment);
+
+        verify(dividendRepository, times(4)).save(any(Dividend.class)); 
     }
 
     private Investment createMockInvestment(String name, double price, int quantity) {
@@ -71,15 +109,12 @@ public class DividendGeneratorTest {
         investment.setCurrentPrice(BigDecimal.valueOf(price));
         investment.setUserId(1L);
         
-        // Create a mock transaction
         Transaction transaction = new Transaction();
         transaction.setTimestamp(Instant.now());
-        investment.setTransactions(Collections.singletonList(transaction)); // Simulating one transaction
+        transaction.setQuantity(quantity); 
+        investment.setTransactions(Collections.singletonList(transaction)); 
         
         return investment;
     }
 
-    // TODO test timestamp logic
-
-    // TODO test dividend logic
 }

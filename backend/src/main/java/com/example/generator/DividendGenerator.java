@@ -2,6 +2,7 @@ package com.example.generator;
 
 import com.example.model.Dividend;
 import com.example.model.Investment;
+import com.example.model.Transaction;
 import com.example.repository.DividendRepository;
 import com.example.service.TransactionService;
 
@@ -11,9 +12,15 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Component
 public class DividendGenerator {
+
+    private static final BigDecimal DIVIDEND_RATE = BigDecimal.valueOf(0.04); 
+    private static final int DIVIDEND_INTERVAL_DAYS = 90; 
+    private static final int FUND_DIVIDEND_COUNT = 4; 
+    private static final int COMPANY_DIVIDEND_COUNT = 1;
 
     @Autowired
     private DividendRepository dividendRepository;
@@ -22,12 +29,27 @@ public class DividendGenerator {
     private TransactionService transactionService;
 
     public void generateDividends(Investment investment) {
-        if (investment.getTransactions() == null || investment.getTransactions().isEmpty()) {
-            return; // No transactions, no dividends
+        if (isEligibleForDividends(investment)) {
+            createAndSaveDividends(investment);
         }
+    }
 
-        Instant dividendStart = investment.getTransactions().get(0).getTimestamp(); // Start after the first transaction
-        int dividendCount = investment.getName().startsWith("Fund") ? 4 : 1; // 4 dividends for funds, 1 for others
+    private boolean isEligibleForDividends(Investment investment) {
+        return investment != null &&
+               investment.getCurrentPrice() != null &&
+               investment.getCurrentPrice().compareTo(BigDecimal.ZERO) > 0 &&
+               hasPositiveTransactions(investment.getTransactions());
+    }
+
+    private boolean hasPositiveTransactions(List<Transaction> transactions) {
+        return transactions != null && 
+               !transactions.isEmpty() && 
+               transactions.stream().allMatch(transaction -> transaction.getQuantity() > 0);
+    }
+
+    private void createAndSaveDividends(Investment investment) {
+        Instant dividendStart = getDividendStart(investment);
+        int dividendCount = determineDividendCount(investment);
         
         for (int i = 0; i < dividendCount; i++) {
             Dividend dividend = createDividend(investment, dividendStart, i);
@@ -35,15 +57,25 @@ public class DividendGenerator {
         }
     }
 
+    private Instant getDividendStart(Investment investment) {
+        return investment.getTransactions().get(0).getTimestamp(); // Safe to access first element now
+    }
+
+    private int determineDividendCount(Investment investment) {
+        return investment.getName().startsWith("Fund") ? FUND_DIVIDEND_COUNT : COMPANY_DIVIDEND_COUNT;
+    }
+
     private Dividend createDividend(Investment investment, Instant start, int index) {
         Dividend dividend = new Dividend();
         dividend.setInvestment(investment);
-        dividend.setTimestamp(start.plus(index * 90, ChronoUnit.DAYS)); // Every 90 days
-        
-        BigDecimal totalValue = investment.getCurrentPrice().multiply(BigDecimal.valueOf(transactionService.calculateTotalQuantity(investment.getTransactions())));
-        BigDecimal dividendAmount = totalValue.multiply(BigDecimal.valueOf(0.04)); // 4% dividend
-        dividend.setAmount(dividendAmount);
-        
+        dividend.setTimestamp(start.plus(index * DIVIDEND_INTERVAL_DAYS, ChronoUnit.DAYS)); // Every 90 days
+        dividend.setAmount(calculateDividendAmount(investment));
         return dividend;
+    }
+
+    private BigDecimal calculateDividendAmount(Investment investment) {
+        BigDecimal totalValue = investment.getCurrentPrice()
+            .multiply(BigDecimal.valueOf(transactionService.calculateTotalQuantity(investment.getTransactions())));
+        return totalValue.multiply(DIVIDEND_RATE);
     }
 }
