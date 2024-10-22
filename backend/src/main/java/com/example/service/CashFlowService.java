@@ -22,7 +22,7 @@ public class CashFlowService {
 
     public List<CashFlowData> collectCashFlowData(Investment investment) {
         if (!isCurrentPriceValid(investment)) {
-            return new ArrayList<>(); // Return empty if current price is invalid
+            return new ArrayList<>(); 
         }
 
         List<CashFlowData> cashFlowData = new ArrayList<>();

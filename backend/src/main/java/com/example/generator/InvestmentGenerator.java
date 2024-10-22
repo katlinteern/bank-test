@@ -52,8 +52,7 @@ public class InvestmentGenerator {
         Investment investment = new Investment();
         investment.setName(name);
         
-        // Set minimum price to 1
-        BigDecimal randomPrice = BigDecimal.valueOf(1 + new Random().nextInt(149));
+        BigDecimal randomPrice = BigDecimal.valueOf(30 + new Random().nextInt(120));
         investment.setCurrentPrice(randomPrice);
         investment.setUserId(1L);
         return investment;
