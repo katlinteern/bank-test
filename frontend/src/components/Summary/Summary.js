@@ -40,7 +40,7 @@ export default function Summary() {
         <div className="summary-cards">
           <SummaryCard 
             icon="&#128181;" 
-            name="Current value" 
+            name="Total value" 
             value={summary?.totalValue ? `${summary.totalValue} €` : ''}  
           />
           <SummaryCard 

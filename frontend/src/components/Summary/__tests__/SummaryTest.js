@@ -33,7 +33,7 @@ describe('Summary', () => {
 
     // Wait for the summary data to load and be displayed
     await waitFor(() => {
-      expect(screen.getByText(/current value/i)).toBeInTheDocument();
+      expect(screen.getByText(/total value/i)).toBeInTheDocument();
       expect(screen.getByText(/profitability/i)).toBeInTheDocument();
       expect(screen.getByText(/number of investments/i)).toBeInTheDocument();
     });
@@ -51,7 +51,7 @@ describe('Summary', () => {
       // Check that the loading spinner has disappeared
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
       // Check that cards are rendered (but no value)
-      expect(screen.queryByText(/current value/i)).toBeInTheDocument();
+      expect(screen.queryByText(/total value/i)).toBeInTheDocument();
       expect(screen.queryByText(/profitability/i)).toBeInTheDocument();
       expect(screen.queryByText(/number of investments/i)).toBeInTheDocument();
     });

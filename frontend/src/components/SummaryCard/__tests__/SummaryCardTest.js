@@ -4,7 +4,7 @@ import SummaryCard from '../SummaryCard';
 
 describe('SummaryCard Component', () => {
   const icon = '💰';
-  const name = 'Current value';
+  const name = 'Total value';
   const value = '5000 €';
 
   test('renders with provided props', () => {
