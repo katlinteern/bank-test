@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -60,22 +61,33 @@ public class InvestmentService {
         InvestmentSummaryResponse summary = calculateInvestmentSummary(List.of(investment));
         return new InvestmentResponse(investment.getId(), investment.getName(), summary.getTotalValue(), summary.getProfitability());
     }
-    
+
     private InvestmentSummaryResponse calculateInvestmentSummary(List<Investment> investments) {
         BigDecimal totalValue = BigDecimal.ZERO;
         List<CashFlowData> cashFlowData = new ArrayList<>();
-    
+
         for (Investment investment : investments) {
             totalValue = totalValue.add(calculateTotalValue(investment));
             cashFlowData.addAll(cashFlowService.collectCashFlowData(investment)); 
         }
-    
+
         cashFlowData = cashFlowService.filterAndSortCashFlowData(cashFlowData);
-        BigDecimal totalXirr = cashFlowData.isEmpty() ? BigDecimal.ZERO : calculateXirr(cashFlowService.extractDates(cashFlowData), cashFlowService.extractCashFlows(cashFlowData)); // Kasuta CashFlowService
-        BigDecimal profitability = totalXirr.multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
-    
+        
+        BigDecimal totalXirr;
+        try {
+            totalXirr = cashFlowData.isEmpty() ? BigDecimal.ZERO : calculateXirr(cashFlowService.extractDates(cashFlowData), cashFlowService.extractCashFlows(cashFlowData));
+        } catch (IllegalArgumentException e) {
+            logger.warn("XIRR calculation failed: {}", e.getMessage());
+            totalXirr = null; 
+        }
+
+        BigDecimal profitability = Optional.ofNullable(totalXirr)
+                .map(xirr -> xirr.multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP))
+                .orElse(null);
+
         return new InvestmentSummaryResponse(totalValue, profitability, investments.size());
     }
+
     
     public BigDecimal calculateTotalValue(Investment investment) {
         BigDecimal currentPrice = investment.getCurrentPrice();

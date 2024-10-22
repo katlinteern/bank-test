@@ -21,25 +21,32 @@ public class XirrCalculator {
         logger.info("Starting XIRR calculation...");
 
         if (!Validator.isXirrInputValid(dates, cashFlows)) {
-            return null;
+            throw new IllegalArgumentException("Invalid input: dates or cash flows are invalid.");
         }
 
         double rate = DEFAULT_RATE;
 
         for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+            if (!Validator.isRateValid(rate)) {
+                throw new IllegalArgumentException("Rate is invalid (<= -1).");
+            }
+
             Double npv = calculateNpv(rate, dates, cashFlows);
             Double npvDerivative = calculateNpvDerivative(rate, dates, cashFlows);
 
             logger.info("Iteration {}: rate = {}, NPV = {}, NPV derivative = {}", iteration, rate, npv, npvDerivative);
 
-            if (isInvalidNpvOrDerivative(npv, npvDerivative)) {
+            if (Validator.isInvalidNpvOrDerivative(npv, npvDerivative)) {
+                if (iteration == 0) {
+                    throw new IllegalArgumentException("Invalid NPV or derivative at iteration " + iteration);
+                }
                 logger.warn("Invalid NPV or derivative at iteration {}. Returning last known rate.", iteration);
-                return iteration == 0 ? null : BigDecimal.valueOf(rate);
+                return  BigDecimal.valueOf(rate);
             }
 
             double newRate = rate - npv / npvDerivative;
 
-            if (isRateConverged(rate, newRate)) {
+            if (Validator.isRateConverged(rate, newRate, PRECISION)) {
                 logger.info("XIRR calculation successful. Final rate: {}", newRate);
                 return BigDecimal.valueOf(newRate);
             }
@@ -51,37 +58,17 @@ public class XirrCalculator {
         return BigDecimal.valueOf(rate);
     }
 
-    private static boolean isInvalidNpvOrDerivative(Double npv, Double npvDerivative) {
-        return npv == null || npvDerivative == null || Double.isNaN(npv) || Double.isInfinite(npv)
-                || Double.isNaN(npvDerivative) || Double.isInfinite(npvDerivative);
-    }
-
-    private static boolean isRateConverged(double rate, double newRate) {
-        return Math.abs(newRate - rate) < PRECISION;
-    }
-
     private static Double calculateNpv(double rate, List<Instant> dates, List<BigDecimal> cashFlows) {
-        if (rate <= -1.0) {
-            logger.warn("Rate is less than or equal to -1. Returning null.");
-            return null;
-        }
-
         double npv = 0.0;
 
         for (int i = 0; i < cashFlows.size(); i++) {
             long daysDifference = ChronoUnit.DAYS.between(dates.get(0), dates.get(i));
             npv += cashFlows.get(i).doubleValue() / Math.pow(1 + rate, (double) daysDifference / DAYS_IN_YEAR);
         }
-
         return npv;
     }
 
     private static Double calculateNpvDerivative(double rate, List<Instant> dates, List<BigDecimal> cashFlows) {
-        if (rate <= -1.0) {
-            logger.warn("Rate is less than or equal to -1. Returning null.");
-            return null;
-        }
-
         double npvDerivative = 0.0;
 
         for (int i = 0; i < cashFlows.size(); i++) {
@@ -93,7 +80,6 @@ public class XirrCalculator {
                                   / Math.pow(1 + rate, (double) daysDifference / DAYS_IN_YEAR + 1);
             }
         }
-
         return (npvDerivative == 0) ? SMALL_DERIVATIVE : npvDerivative;
     }
 }
