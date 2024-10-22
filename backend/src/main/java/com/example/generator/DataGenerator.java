@@ -42,17 +42,27 @@ public class DataGenerator implements CommandLineRunner {
             investmentRepository.save(investment);
 
             List<Transaction> transactions = transactionGenerator.generateTransactions(investment);
-            investment.setTransactions(transactions);
+            if (!transactions.isEmpty()) {
+                investment.setTransactions(transactions);
+            }
 
             dividendGenerator.generateDividends(investment);
         }
     }
 
     public Investment createInvestment(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Investment name cannot be null or empty.");
+        }
+    
         Investment investment = new Investment();
         investment.setName(name);
-        investment.setCurrentPrice(BigDecimal.valueOf(50 + new Random().nextInt(150))); // Price between 50 and 200
-        investment.setUserId(1L); // Simplified user ID
+        
+        // Set minimum price to 1
+        BigDecimal randomPrice = BigDecimal.valueOf(1 + new Random().nextInt(149));
+        investment.setCurrentPrice(randomPrice);
+        investment.setUserId(1L);
         return investment;
     }
+    
 }
