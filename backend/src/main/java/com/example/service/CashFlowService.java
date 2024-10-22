@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,32 +18,25 @@ import com.example.model.Investment;
 public class CashFlowService {
 
     @Autowired
-    TransactionService transactionService;
+    private TransactionService transactionService;
 
     public List<CashFlowData> collectCashFlowData(Investment investment) {
-        List<CashFlowData> cashFlowData = new ArrayList<>();
-
-        investment.getTransactions().forEach(transaction -> 
-            cashFlowData.add(new CashFlowData(transactionService.calculateCashFlow(transaction), transaction.getTimestamp())));
-
-        investment.getDividends().forEach(dividend -> 
-            cashFlowData.add(new CashFlowData(dividend.getAmount(), dividend.getTimestamp())));
-
-        if (!cashFlowData.isEmpty()) {
-            BigDecimal currentValue = investment.getCurrentPrice()
-                    .multiply(BigDecimal.valueOf(transactionService.calculateTotalQuantity(investment.getTransactions())));
-            cashFlowData.add(new CashFlowData(currentValue, Instant.now()));
+        if (!isCurrentPriceValid(investment)) {
+            return new ArrayList<>(); // Return empty if current price is invalid
         }
+
+        List<CashFlowData> cashFlowData = new ArrayList<>();
+        processTransactions(investment, cashFlowData);
+        processDividends(investment, cashFlowData);
+        addCurrentValueToCashFlowData(investment, cashFlowData);
 
         return cashFlowData;
     }
 
     public List<CashFlowData> filterAndSortCashFlowData(List<CashFlowData> cashFlowData) {
         return cashFlowData.stream()
-                .filter(cashFlow -> cashFlow.getDate().isBefore(Instant.now())
-                        || cashFlow.getDate().equals(Instant.now())) // filter out future dates
-                .filter(cashFlow -> cashFlow.getAmount().compareTo(BigDecimal.ZERO) != 0) // filter out zero amounts
-                .sorted(Comparator.comparing(CashFlowData::getDate)) // sort by date
+                .filter(this::isValidCashFlow)
+                .sorted(Comparator.comparing(CashFlowData::getDate))
                 .collect(Collectors.toList());
     }
 
@@ -56,5 +50,35 @@ public class CashFlowService {
         return cashFlowDataList.stream()
                 .map(CashFlowData::getAmount)
                 .collect(Collectors.toList());
+    }
+
+    private boolean isCurrentPriceValid(Investment investment) {
+        return Optional.ofNullable(investment.getCurrentPrice())
+                .filter(price -> price.compareTo(BigDecimal.ZERO) > 0)
+                .isPresent();
+    }
+
+    private void processTransactions(Investment investment, List<CashFlowData> cashFlowData) {
+        investment.getTransactions().forEach(transaction -> {
+            BigDecimal cashFlowAmount = transactionService.calculateCashFlow(transaction);
+            cashFlowData.add(new CashFlowData(cashFlowAmount, transaction.getTimestamp()));
+        });
+    }
+
+    private void processDividends(Investment investment, List<CashFlowData> cashFlowData) {
+        investment.getDividends().forEach(dividend -> {
+            cashFlowData.add(new CashFlowData(dividend.getAmount(), dividend.getTimestamp()));
+        });
+    }
+
+    private void addCurrentValueToCashFlowData(Investment investment, List<CashFlowData> cashFlowData) {
+        BigDecimal currentValue = investment.getCurrentPrice()
+                .multiply(BigDecimal.valueOf(transactionService.calculateTotalQuantity(investment.getTransactions())));
+        cashFlowData.add(new CashFlowData(currentValue, Instant.now()));
+    }
+
+    private boolean isValidCashFlow(CashFlowData cashFlow) {
+        return (cashFlow.getDate().isBefore(Instant.now()) || cashFlow.getDate().equals(Instant.now()))
+                && cashFlow.getAmount().compareTo(BigDecimal.ZERO) != 0;
     }
 }

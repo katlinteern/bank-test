@@ -67,10 +67,10 @@ public class InvestmentService {
     
         for (Investment investment : investments) {
             totalValue = totalValue.add(calculateTotalValue(investment));
-            cashFlowData.addAll(cashFlowService.collectCashFlowData(investment)); // Kasuta CashFlowService
+            cashFlowData.addAll(cashFlowService.collectCashFlowData(investment)); 
         }
     
-        cashFlowData = cashFlowService.filterAndSortCashFlowData(cashFlowData); // Kasuta CashFlowService
+        cashFlowData = cashFlowService.filterAndSortCashFlowData(cashFlowData);
         BigDecimal totalXirr = cashFlowData.isEmpty() ? BigDecimal.ZERO : calculateXirr(cashFlowService.extractDates(cashFlowData), cashFlowService.extractCashFlows(cashFlowData)); // Kasuta CashFlowService
         BigDecimal profitability = totalXirr.multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP);
     

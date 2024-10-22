@@ -12,6 +12,10 @@ import com.example.model.Transaction;
 public class TransactionService {
 
         public BigDecimal calculateCashFlow(Transaction transaction) {
+                if (transaction == null) {
+                        return BigDecimal.ZERO;
+                }
+
                 BigDecimal price = transaction.getPrice();
                 BigDecimal quantity = BigDecimal.valueOf(transaction.getQuantity());
                 BigDecimal fee = transaction.getFee();
@@ -31,7 +35,7 @@ public class TransactionService {
                                 totalSell += transaction.getQuantity();
                         }
                 }
-                return totalBuy - totalSell; 
+                return totalBuy - totalSell;
         }
 
 }
