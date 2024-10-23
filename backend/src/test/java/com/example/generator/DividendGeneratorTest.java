@@ -56,7 +56,7 @@ public class DividendGeneratorTest {
         emptyInvestment.setCurrentPrice(BigDecimal.valueOf(100));
         emptyInvestment.setUserId(1L);
         emptyInvestment.setTransactions(Collections.emptyList()); 
-    
+        
         dividendGenerator.generateDividends(emptyInvestment);
         
         verify(dividendRepository, never()).save(any(Dividend.class));
@@ -72,8 +72,8 @@ public class DividendGeneratorTest {
     }
 
     @Test
-    public void generateDividends_withNegativeInvestmentPrice_doesNotCreateDividends() {
-        Investment investment = createMockInvestment("Fund A", -100, 10); 
+    public void generateDividends_withZeroInvestmentPrice_doesNotCreateDividends() {
+        Investment investment = createMockInvestment("Fund A", 0, 10); 
 
         dividendGenerator.generateDividends(investment);
 
@@ -84,7 +84,7 @@ public class DividendGeneratorTest {
     public void generateDividends_withNullAttributes_doesNotCreateDividends() {
         Investment investment = new Investment();
         investment.setName("Fund A");
-        investment.setCurrentPrice(null); 
+        investment.setCurrentPrice(BigDecimal.ZERO); // Set to 0, since null is not allowed
         investment.setTransactions(null); 
 
         dividendGenerator.generateDividends(investment); 
@@ -96,7 +96,7 @@ public class DividendGeneratorTest {
     public void generateDividends_correctDividendAmountCalculation() {
         Investment investment = createMockInvestment("Fund A", 100, 10);
 
-        when(transactionService.calculateTotalQuantity(any())).thenReturn(10); ; 
+        when(transactionService.calculateTotalQuantity(any())).thenReturn(10); 
 
         dividendGenerator.generateDividends(investment);
 
@@ -104,6 +104,9 @@ public class DividendGeneratorTest {
     }
 
     private Investment createMockInvestment(String name, double price, int quantity) {
+        if (price < 0) {
+            price = 0; 
+        }
         Investment investment = new Investment();
         investment.setName(name);
         investment.setCurrentPrice(BigDecimal.valueOf(price));

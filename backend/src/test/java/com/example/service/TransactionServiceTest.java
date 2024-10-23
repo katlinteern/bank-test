@@ -90,14 +90,6 @@ class TransactionServiceTest {
         assertEquals(2, totalQuantity); // 5 - 3 = 2
     }
 
-    @Test
-    public void calculateTotalQuantity_NegativeQuantities_ReturnsCorrectQuantity() {
-        Transaction buyTransaction = createTransaction(TransactionType.BUY, BigDecimal.valueOf(10), -5, BigDecimal.ZERO);
-        List<Transaction> transactions = Collections.singletonList(buyTransaction);
-        int totalQuantity = transactionService.calculateTotalQuantity(transactions);
-        assertEquals(-5, totalQuantity);
-    }
-
     private Transaction createTransaction(TransactionType type, BigDecimal price, int quantity, BigDecimal fee) {
         Transaction transaction = new Transaction();
         transaction.setType(type);

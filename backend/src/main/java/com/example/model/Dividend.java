@@ -35,6 +35,9 @@ public class Dividend {
     }
 
     public void setAmount(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Amount cannot be negative or null");
+        }
         this.amount = amount;
     }
 

@@ -54,6 +54,9 @@ public class Transaction {
     }
 
     public void setQuantity(int quantity) {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
         this.quantity = quantity;
     }
 
@@ -62,9 +65,12 @@ public class Transaction {
     }
 
     public void setPrice(BigDecimal price) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price cannot be negative or null");
+        }
         this.price = price;
     }
-
+    
     public BigDecimal getFee() {
         return fee;
     }

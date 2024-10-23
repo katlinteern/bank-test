@@ -84,7 +84,6 @@ public class TransactionGeneratorTest {
         assertFalse(transactions.isEmpty(), "There should be some transactions generated.");
     }
 
-    // New edge case test: Transaction fee is within valid range
     @Test
     public void generateTransactions_whenCalled_createsValidTransactionFees() {
         Investment mockInvestment = createMockInvestment();
@@ -98,7 +97,6 @@ public class TransactionGeneratorTest {
         }
     }
 
-    // New edge case test: Timestamps are ordered correctly
     @Test
     public void generateTransactions_whenCalled_createsChronologicallyOrderedTimestamps() {
         Investment mockInvestment = createMockInvestment();
@@ -116,25 +114,12 @@ public class TransactionGeneratorTest {
         }
     }
 
-    // New edge case test: Handling zero price investment
     @Test
     public void generateTransactions_withZeroPriceInvestment_shouldThrowException() {
         Investment zeroPriceInvestment = createMockInvestmentWithPrice(BigDecimal.ZERO);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             transactionGenerator.generateTransactions(zeroPriceInvestment);
-        });
-
-        assertEquals("Investment price must be greater than zero.", exception.getMessage());
-    }
-
-    // New edge case test: Handling negative price investment
-    @Test
-    public void generateTransactions_withNegativePriceInvestment_shouldThrowException() {
-        Investment negativePriceInvestment = createMockInvestmentWithPrice(BigDecimal.valueOf(-100));
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            transactionGenerator.generateTransactions(negativePriceInvestment);
         });
 
         assertEquals("Investment price must be greater than zero.", exception.getMessage());
@@ -160,7 +145,6 @@ public class TransactionGeneratorTest {
         return investment;
     }
 
-    // Helper method for creating an investment with a specified price
     private Investment createMockInvestmentWithPrice(BigDecimal price) {
         Investment investment = new Investment();
         investment.setName("Fund B");

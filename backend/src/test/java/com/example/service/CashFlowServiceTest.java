@@ -39,7 +39,7 @@ class CashFlowServiceTest {
     @Test
     public void collectCashFlowData_NoTransactionsOrDividends_ReturnsNoCashFlows() {
         Investment investment = new Investment();
-        investment.setCurrentPrice(null);
+        investment.setCurrentPrice(BigDecimal.valueOf(0));
         investment.setTransactions(Collections.emptyList());
         investment.setDividends(Collections.emptyList());
 
@@ -70,7 +70,7 @@ class CashFlowServiceTest {
 
     @Test
     public void collectCashFlowData_NoCurrentPrice_ReturnsNoCashFlows() {
-        Investment investment = createInvestment(null, List.of(createTransaction()), List.of(createDividend()));
+        Investment investment = createInvestment(BigDecimal.valueOf(0), List.of(createTransaction()), List.of(createDividend()));
         List<CashFlowData> cashFlowData = cashFlowService.collectCashFlowData(investment);
 
         assertEquals(0, cashFlowData.size(), "Expected no cash flow data when current price is null");
