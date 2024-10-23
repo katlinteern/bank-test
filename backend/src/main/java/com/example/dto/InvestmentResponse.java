@@ -2,12 +2,13 @@ package com.example.dto;
 
 import java.math.BigDecimal;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * Data Transfer Object for Investment response
- */
 @Data
+@NoArgsConstructor 
+@AllArgsConstructor
 public class InvestmentResponse {
     private Long id;
     private String name;
@@ -15,17 +16,4 @@ public class InvestmentResponse {
     private BigDecimal profitability;
     private BigDecimal currentPrice;
     private int quantity;
-
-    public InvestmentResponse() {
-    }
-
-    public InvestmentResponse(Long id, String name, BigDecimal totalValue, BigDecimal profitability,
-            BigDecimal currentPrice, int quantity) {
-        this.id = id;
-        this.name = name;
-        this.totalValue = totalValue;
-        this.profitability = profitability;
-        this.currentPrice = currentPrice;
-        this.quantity = quantity;
-    }
 }

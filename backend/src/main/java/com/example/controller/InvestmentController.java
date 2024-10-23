@@ -13,19 +13,24 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * InvestmentController handles HTTP requests related to investments.
+ * It provides endpoints to fetch user investments and their summaries.
+ */
 @RestController
 @RequestMapping("/api/investments")
 public class InvestmentController {
-    Logger logger = LoggerFactory.getLogger(InvestmentController.class);
+    private static final Logger logger = LoggerFactory.getLogger(InvestmentController.class);
 
-    @Autowired
-    private InvestmentService investmentService;
+    @Autowired InvestmentService investmentService;
 
-    // User existance simulation with userId 1
-    private boolean userExists(Long userId) {
-        return userId == 1; 
-    }
-    
+    /**
+     * Fetches a list of investments for a specific user identified by userId.
+     *
+     * @param userId the ID of the user for whom to fetch investments
+     * @return ResponseEntity containing a list of InvestmentResponse objects if found,
+     *         404 Not Found if the user does not exist, or 204 No Content if no investments are found
+     */
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<InvestmentResponse>> getInvestmentsByUserId(@PathVariable Long userId) {
         logger.info("Fetching investments for user ID: {}", userId);
@@ -45,6 +50,13 @@ public class InvestmentController {
         return ResponseEntity.ok(investments); 
     }
 
+    /**
+     * Fetches the investment summary for a specific user identified by userId.
+     *
+     * @param userId the ID of the user for whom to fetch the investment summary
+     * @return ResponseEntity containing an InvestmentSummaryResponse if found,
+     *         404 Not Found if the user does not exist, or 204 No Content if no summary is available
+     */
     @GetMapping("/user/{userId}/summary")
     public ResponseEntity<InvestmentSummaryResponse> getUserInvestmentSummary(@PathVariable Long userId) {
         logger.info("Fetching investment summary for user ID: {}", userId);
@@ -62,5 +74,15 @@ public class InvestmentController {
         }
 
         return ResponseEntity.ok(summary);
+    }
+
+    /**
+     * Simulates the existence check for a user based on the userId.
+     *
+     * @param userId the ID of the user to check
+     * @return true if the user exists (in this simulation, only userId 1 exists), false otherwise
+     */
+    private boolean userExists(Long userId) {
+        return userId != null && userId == 1; 
     }
 }
