@@ -52,7 +52,7 @@ public class InvestmentGenerator {
         Investment investment = new Investment();
         investment.setName(name);
         
-        BigDecimal randomPrice = BigDecimal.valueOf(50 + new Random().nextInt(100));
+        BigDecimal randomPrice = BigDecimal.valueOf(60 + new Random().nextInt(100));
         investment.setCurrentPrice(randomPrice);
         investment.setUserId(1L);
         return investment;

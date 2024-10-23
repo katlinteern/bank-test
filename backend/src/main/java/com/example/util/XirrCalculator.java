@@ -27,10 +27,6 @@ public class XirrCalculator {
         double rate = DEFAULT_RATE;
 
         for (int iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-            if (rate <= -1.0) {
-                throw new IllegalArgumentException("Rate is invalid (<= -1).");
-            }
-
             Double npv = calculateNpv(rate, dates, cashFlows);
             Double npvDerivative = calculateNpvDerivative(rate, dates, cashFlows);
 
