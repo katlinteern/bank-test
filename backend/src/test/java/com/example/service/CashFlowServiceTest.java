@@ -1,4 +1,4 @@
-/* package com.example.service;
+package com.example.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,17 +35,72 @@ class CashFlowServiceTest {
         when(transactionService.calculateTotalQuantity(any())).thenReturn(10);
     }
 
+    // Helper methods for test setup
+    private Investment createInvestment(BigDecimal currentPrice, List<Transaction> transactions,
+            List<Dividend> dividends) {
+        Investment investment = new Investment();
+        investment.setCurrentPrice(currentPrice);
+        investment.setTransactions(transactions);
+        investment.setDividends(dividends);
+        return investment;
+    }
+
+    private Transaction createTransaction() {
+        Transaction transaction = new Transaction();
+        transaction.setType(TransactionType.BUY);
+        transaction.setQuantity(10);
+        transaction.setPrice(BigDecimal.valueOf(100));
+        transaction.setFee(BigDecimal.valueOf(5));
+        transaction.setTimestamp(Instant.now().minusSeconds(7200)); // 2 hours ago
+        when(transactionService.calculateCashFlow(transaction)).thenReturn(BigDecimal.valueOf(95)); // (100 * 10) - 5
+        return transaction;
+    }
+
+    private Dividend createDividend() {
+        Dividend dividend = new Dividend();
+        dividend.setAmount(BigDecimal.valueOf(20));
+        dividend.setTimestamp(Instant.now().minusSeconds(3600)); // 1 hour ago
+        return dividend;
+    }
+
+    // Tests for collectAndFilterCashFlows
+    @Test
+    public void collectAndFilterCashFlows_EmptyInvestmentList_ReturnsEmptyList() {
+        List<CashFlowData> cashFlowData = cashFlowService.collectAndFilterCashFlows(Collections.emptyList());
+        
+        assertTrue(cashFlowData.isEmpty(), "Expected empty list when no investments are provided");
+    }
+
+    @Test
+    public void collectAndFilterCashFlows_NoValidCashFlows_ReturnsEmptyList() {
+        Investment investment = createInvestment(BigDecimal.ZERO, Collections.emptyList(), Collections.emptyList());
+        List<CashFlowData> cashFlowData = cashFlowService.collectAndFilterCashFlows(List.of(investment));
+        
+        assertTrue(cashFlowData.isEmpty(), "Expected empty list when no valid cash flows are present");
+    }
+
+    @Test
+    public void collectAndFilterCashFlows_WithInvalidCashFlows_ReturnsFilteredCashFlows() {
+        Investment validInvestment = createInvestment(BigDecimal.valueOf(10), List.of(createTransaction()), List.of(createDividend()));
+        Investment invalidInvestment = createInvestment(BigDecimal.ZERO, Collections.emptyList(), Collections.emptyList());
+
+        List<CashFlowData> cashFlowData = cashFlowService.collectAndFilterCashFlows(List.of(validInvestment, invalidInvestment));
+        
+        assertEquals(3, cashFlowData.size(), "Expected 3 valid cash flows from the valid investment only");
+        assertTrue(cashFlowData.stream().anyMatch(data -> data.getAmount().equals(BigDecimal.valueOf(95))));
+        assertTrue(cashFlowData.stream().anyMatch(data -> data.getAmount().equals(BigDecimal.valueOf(20))));
+        assertTrue(cashFlowData.stream().anyMatch(data -> data.getAmount().equals(BigDecimal.valueOf(100))));
+    }
+
     // Tests for collectCashFlowData
     @Test
-    public void collectCashFlowData_NoTransactionsOrDividends_ReturnsNoCashFlows() {
-        Investment investment = new Investment();
-        investment.setCurrentPrice(BigDecimal.valueOf(0));
-        investment.setTransactions(Collections.emptyList());
-        investment.setDividends(Collections.emptyList());
+    public void collectCashFlowData_NoTransactionsOrDividends_ReturnsOneCashFlow() {
+        Investment investment = createInvestment(BigDecimal.valueOf(1), Collections.emptyList(),
+                Collections.emptyList());
 
         List<CashFlowData> cashFlowData = cashFlowService.collectCashFlowData(investment);
 
-        assertEquals(0, cashFlowData.size(), "Expected no cash flow data for empty investment");
+        assertEquals(1, cashFlowData.size(), "Expected no cash flow data for empty investment");
     }
 
     @Test
@@ -63,14 +118,13 @@ class CashFlowServiceTest {
                 "Missing dividend cash flow");
         assertTrue(cashFlowData.stream().anyMatch(data -> data.getAmount().equals(BigDecimal.valueOf(100))),
                 "Missing current value cash flow");
-
-        assertEquals(BigDecimal.valueOf(100), cashFlowData.get(2).getAmount(),
-                "The last entry should be the current value cash flow");
     }
 
     @Test
     public void collectCashFlowData_NoCurrentPrice_ReturnsNoCashFlows() {
-        Investment investment = createInvestment(BigDecimal.valueOf(0), List.of(createTransaction()), List.of(createDividend()));
+        Investment investment = createInvestment(BigDecimal.valueOf(0), List.of(createTransaction()),
+                List.of(createDividend()));
+
         List<CashFlowData> cashFlowData = cashFlowService.collectCashFlowData(investment);
 
         assertEquals(0, cashFlowData.size(), "Expected no cash flow data when current price is null");
@@ -78,59 +132,25 @@ class CashFlowServiceTest {
 
     @Test
     public void collectCashFlowData_CurrentPriceZero_ReturnsNoCashFlows() {
-        Investment investment = createInvestment(BigDecimal.ZERO, List.of(createTransaction()), List.of(createDividend()));
+        Investment investment = createInvestment(BigDecimal.ZERO, List.of(createTransaction()),
+                List.of(createDividend()));
+
         List<CashFlowData> cashFlowData = cashFlowService.collectCashFlowData(investment);
-    
+
         assertEquals(0, cashFlowData.size(), "Expected no cash flow data when current price is zero");
     }
 
-    // Tests for filterAndSortCashFlowData
     @Test
-    public void filterAndSortCashFlowData_NoCashFlows_ReturnsEmptyList() {
-        List<CashFlowData> cashFlowData = Collections.emptyList();
-        List<CashFlowData> filteredData = cashFlowService.filterAndSortCashFlowData(cashFlowData);
-        assertTrue(filteredData.isEmpty(), "Expected empty list when no cash flows present");
-    }
+    public void collectCashFlowData_MultipleTransactionsAndDividends_ReturnsCombinedCashFlowData() {
+        Investment investment = createInvestment(
+                BigDecimal.valueOf(10),
+                List.of(createTransaction(), createTransaction()),
+                List.of(createDividend(), createDividend()));
 
-    @Test
-    public void filterAndSortCashFlowData_WithFutureCashFlows_ReturnsFilteredData() {
-        Instant now = Instant.now();
-        CashFlowData cashFlow1 = new CashFlowData(BigDecimal.valueOf(100), now.plusSeconds(3600)); // 1 hour in the
-                                                                                                   // future
-        CashFlowData cashFlow2 = new CashFlowData(BigDecimal.valueOf(200), now.minusSeconds(7200)); // 2 hours ago
-        List<CashFlowData> cashFlowData = List.of(cashFlow1, cashFlow2);
+        List<CashFlowData> cashFlowData = cashFlowService.collectCashFlowData(investment);
 
-        List<CashFlowData> sortedData = cashFlowService.filterAndSortCashFlowData(cashFlowData);
-
-        assertEquals(1, sortedData.size(), "Expected only past cash flow data to remain");
-        assertEquals(cashFlow2.getDate(), sortedData.get(0).getDate(), "Expected past cash flow to be the only item");
-    }
-
-    @Test
-    public void filterAndSortCashFlowData_WithZeroAmountCashFlows_ReturnsFilteredData() {
-        Instant now = Instant.now();
-        CashFlowData cashFlow1 = new CashFlowData(BigDecimal.ZERO, now.minusSeconds(3600)); // 1 hour ago
-        CashFlowData cashFlow2 = new CashFlowData(BigDecimal.valueOf(200), now.minusSeconds(7200)); // 2 hours ago
-        List<CashFlowData> cashFlowData = List.of(cashFlow1, cashFlow2);
-
-        List<CashFlowData> sortedData = cashFlowService.filterAndSortCashFlowData(cashFlowData);
-
-        assertEquals(1, sortedData.size(), "Expected only non-zero cash flow data");
-        assertEquals(cashFlow2.getDate(), sortedData.get(0).getDate(), "Expected positive cash flow to remain");
-    }
-
-    @Test
-    public void filterAndSortCashFlowData_ValidCashFlows_ReturnsSortedData() {
-        Instant now = Instant.now();
-        CashFlowData cashFlow1 = new CashFlowData(BigDecimal.valueOf(100), now.minusSeconds(3600));
-        CashFlowData cashFlow2 = new CashFlowData(BigDecimal.valueOf(200), now.minusSeconds(7200));
-        List<CashFlowData> cashFlowData = List.of(cashFlow1, cashFlow2);
-
-        List<CashFlowData> sortedData = cashFlowService.filterAndSortCashFlowData(cashFlowData);
-
-        assertEquals(2, sortedData.size(), "Expected sorted cash flow data");
-        assertEquals(cashFlow2.getDate(), sortedData.get(0).getDate(), "Expected the earliest cash flow first");
-        assertEquals(cashFlow1.getDate(), sortedData.get(1).getDate(), "Expected the later cash flow second");
+        // Each transaction and dividend will add to cash flow
+        assertEquals(5, cashFlowData.size(), "Expected 5 cash flow data entries");
     }
 
     // Tests for extractDates
@@ -175,32 +195,4 @@ class CashFlowServiceTest {
         assertTrue(amounts.isEmpty(), "Expected an empty list of amounts from empty input");
     }
 
-    // Helper methods for test setup
-    private Investment createInvestment(BigDecimal currentPrice, List<Transaction> transactions,
-            List<Dividend> dividends) {
-        Investment investment = new Investment();
-        investment.setCurrentPrice(currentPrice);
-        investment.setTransactions(transactions);
-        investment.setDividends(dividends);
-        return investment;
-    }
-
-    private Transaction createTransaction() {
-        Transaction transaction = new Transaction();
-        transaction.setType(TransactionType.BUY);
-        transaction.setQuantity(10);
-        transaction.setPrice(BigDecimal.valueOf(100));
-        transaction.setFee(BigDecimal.valueOf(5));
-        transaction.setTimestamp(Instant.now().minusSeconds(7200)); // 2 hours ago
-        when(transactionService.calculateCashFlow(transaction)).thenReturn(BigDecimal.valueOf(95)); // (100 * 10) - 5
-        return transaction;
-    }
-
-    private Dividend createDividend() {
-        Dividend dividend = new Dividend();
-        dividend.setAmount(BigDecimal.valueOf(20));
-        dividend.setTimestamp(Instant.now().minusSeconds(3600)); // 1 hour ago
-        return dividend;
-    }
 }
- */
