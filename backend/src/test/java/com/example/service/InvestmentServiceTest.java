@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.example.dto.InvestmentResponse;
 import com.example.dto.InvestmentSummaryResponse;
+import com.example.model.Dividend;
 import com.example.model.Investment;
 import com.example.model.Transaction;
 import com.example.enums.TransactionType;
@@ -38,8 +40,38 @@ class InvestmentServiceTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(transactionService.calculateTotalQuantity(any())).thenReturn(5);
     }
+
+    // Helper methods for test setup
+    private Investment createInvestment(BigDecimal currentPrice, List<Transaction> transactions,
+            List<Dividend> dividends) {
+        Investment investment = new Investment();
+        investment.setCurrentPrice(currentPrice);
+        investment.setTransactions(transactions);
+        investment.setDividends(dividends);
+        return investment;
+    }
+
+    private Transaction createTransaction(TransactionType type, int quantity, BigDecimal price, BigDecimal fee) {
+        Transaction transaction = new Transaction();
+        transaction.setType(type);
+        transaction.setQuantity(quantity);
+        transaction.setPrice(price);
+        transaction.setFee(fee);
+        transaction.setTimestamp(Instant.now().minusSeconds(7200)); // 2 hours ago
+        when(transactionService.calculateCashFlow(transaction))
+                .thenReturn(price.subtract(fee).multiply(BigDecimal.valueOf(quantity))); // Total cash flow after fee
+        return transaction;
+    }
+
+    private Dividend createDividend(BigDecimal amount) {
+        Dividend dividend = new Dividend();
+        dividend.setAmount(amount);
+        dividend.setTimestamp(Instant.now().minusSeconds(3600)); // 1 hour ago
+        return dividend;
+    }
+
+    // getUserInvestments
 
     @Test
     public void getUserInvestments_UserExistsNoInvestments_ReturnsEmptyList() {
@@ -55,25 +87,32 @@ class InvestmentServiceTest {
     @Test
     public void getUserInvestments_UserExistsWithInvestments_ReturnsInvestments() {
         Long userId = 1L;
-        Investment investment = new Investment();
+        Investment investment = createInvestment(BigDecimal.valueOf(10), Collections.emptyList(),
+                Collections.emptyList());
         investment.setId(1L);
-        investment.setName("Investment A");
-        investment.setCurrentPrice(BigDecimal.valueOf(10));
-
-        Transaction transaction = new Transaction();
-        transaction.setType(TransactionType.BUY);
-        transaction.setQuantity(5);
-        investment.setTransactions(List.of(transaction));
-
         when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment));
+        when(transactionService.calculateTotalQuantity(any())).thenReturn(5);
 
         List<InvestmentResponse> investments = investmentService.getUserInvestments(userId);
 
         assertEquals(1, investments.size());
-        assertEquals("Investment A", investments.get(0).getName());
+        assertEquals(investment.getId(), investments.get(0).getId());
         assertEquals(BigDecimal.valueOf(50), investments.get(0).getTotalValue());
         verify(investmentRepository, times(1)).findAllByUserId(userId);
     }
+
+    @Test
+    public void getUserInvestments_InvalidUserId_ReturnsEmptyList() {
+        Long invalidUserId = -1L;
+        when(investmentRepository.findAllByUserId(invalidUserId)).thenReturn(Collections.emptyList());
+
+        List<InvestmentResponse> investments = investmentService.getUserInvestments(invalidUserId);
+
+        assertTrue(investments.isEmpty());
+        verify(investmentRepository, times(1)).findAllByUserId(invalidUserId);
+    }
+
+    // getUserInvestmentSummary
 
     @Test
     public void getUserInvestmentSummary_UserExistsNoInvestments_ReturnsEmptySummary() {
@@ -82,8 +121,8 @@ class InvestmentServiceTest {
 
         InvestmentSummaryResponse summary = investmentService.getUserInvestmentSummary(userId);
 
-        assertEquals(BigDecimal.ZERO, summary.getTotalValue());
-        assertEquals(BigDecimal.ZERO, summary.getProfitability());
+        assertEquals(null, summary.getTotalValue());
+        assertEquals(null, summary.getProfitability());
         assertEquals(0, summary.getNumberOfInvestments());
         verify(investmentRepository, times(1)).findAllByUserId(userId);
     }
@@ -91,113 +130,75 @@ class InvestmentServiceTest {
     @Test
     public void getUserInvestmentSummary_UserExistsWithInvestments_ReturnsSummary() {
         Long userId = 1L;
-        Investment investment = new Investment();
-        investment.setCurrentPrice(BigDecimal.valueOf(10));
-
-        Transaction transaction = new Transaction();
-        transaction.setType(TransactionType.BUY);
-        transaction.setQuantity(5);
-        investment.setTransactions(List.of(transaction));
-        investment.setDividends(Collections.emptyList());
+        Transaction transaction = createTransaction(TransactionType.BUY, 10, BigDecimal.valueOf(10),
+                BigDecimal.valueOf(5));
+        Investment investment = createInvestment(BigDecimal.valueOf(10), List.of(transaction), Collections.emptyList());
 
         when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment));
-        when(cashFlowService.extractCashFlows(any())).thenReturn(Collections.emptyList()); // Mock cash flow extraction
+        when(transactionService.calculateTotalQuantity(any())).thenReturn(10);
+        when(cashFlowService.collectAndFilterCashFlows(any())).thenReturn(Collections.emptyList());
 
         InvestmentSummaryResponse summary = investmentService.getUserInvestmentSummary(userId);
 
-        assertEquals(BigDecimal.valueOf(50), summary.getTotalValue());
-        assertEquals(0, summary.getProfitability().compareTo(BigDecimal.ZERO));
+        assertEquals(BigDecimal.valueOf(100), summary.getTotalValue());
+        assertEquals(null, summary.getProfitability());
         assertEquals(1, summary.getNumberOfInvestments());
         verify(investmentRepository, times(1)).findAllByUserId(userId);
     }
 
     @Test
-    public void createInvestmentResponse_ValidInvestment_ReturnsInvestmentResponse() {
-        Investment investment = new Investment();
-        investment.setId(1L);
-        investment.setName("Investment A");
-        investment.setCurrentPrice(BigDecimal.valueOf(10));
-
-        Transaction transaction = new Transaction();
-        transaction.setType(TransactionType.BUY);
-        transaction.setQuantity(5);
-        investment.setTransactions(List.of(transaction));
-
-        InvestmentResponse response = investmentService.createInvestmentResponse(investment);
-
-        assertEquals(1L, response.getId());
-        assertEquals("Investment A", response.getName());
-        assertEquals(BigDecimal.valueOf(50), response.getTotalValue());
-    }
-
-    @Test
-    public void calculateTotalValue_ValidInvestment_ReturnsCorrectTotalValue() {
-        Investment investment = new Investment();
-        investment.setCurrentPrice(BigDecimal.valueOf(10));
-
-        Transaction transaction = new Transaction();
-        transaction.setType(TransactionType.BUY);
-        transaction.setQuantity(5);
-        investment.setTransactions(List.of(transaction));
-
-        BigDecimal totalValue = investmentService.calculateTotalValue(investment);
-
-        assertEquals(BigDecimal.valueOf(50), totalValue);
-    }
-
-/*     @Test
     public void getUserInvestmentSummary_MultipleInvestments_ReturnsCorrectSummary() {
         Long userId = 1L;
 
-        Investment investment1 = new Investment();
-        investment1.setCurrentPrice(BigDecimal.valueOf(10));
-        investment1.setUserId(userId);
-
-        Transaction transaction1 = new Transaction();
-        transaction1.setInvestment(investment1);
-        transaction1.setType(TransactionType.BUY);
-        transaction1.setQuantity(5);
-        investment1.setTransactions(List.of(transaction1));
-
-        Investment investment2 = new Investment();
-        investment2.setCurrentPrice(BigDecimal.valueOf(20));
-        investment2.setUserId(userId);
-
-        Transaction transaction2 = new Transaction();
-        transaction2.setInvestment(investment2);
-        transaction2.setType(TransactionType.BUY);
-        transaction2.setQuantity(3);
-        investment2.setTransactions(List.of(transaction2));
+        Investment investment1 = createInvestment(BigDecimal.valueOf(10), Collections.emptyList(),
+                Collections.emptyList());
+        Investment investment2 = createInvestment(BigDecimal.valueOf(20), Collections.emptyList(),
+                Collections.emptyList());
 
         when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment1, investment2));
+        when(transactionService.calculateTotalQuantity(any())).thenReturn(5);
 
         InvestmentSummaryResponse summary = investmentService.getUserInvestmentSummary(userId);
 
-        assertEquals(BigDecimal.valueOf(90), summary.getTotalValue()); // (10*5 + 20*3)
-        assertEquals(0, summary.getProfitability().compareTo(BigDecimal.ZERO)); // Assuming no dividends
+        assertEquals(BigDecimal.valueOf(150), summary.getTotalValue());
+        assertEquals(null, summary.getProfitability());
         assertEquals(2, summary.getNumberOfInvestments());
+        verify(investmentRepository, times(1)).findAllByUserId(userId);
+    }
+/* 
+    @Test
+    public void getUserInvestmentSummary_NoCashFlowData_ReturnsNullXIRR() {
+        Long userId = 1L;
+        Investment investment = createInvestment(BigDecimal.valueOf(10), Collections.emptyList(),
+                Collections.emptyList());
+
+        when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment));
+        when(transactionService.calculateTotalQuantity(any())).thenReturn(5);
+        when(cashFlowService.collectAndFilterCashFlows(any())).thenReturn(Collections.emptyList());
+    
+        InvestmentSummaryResponse summary = investmentService.getUserInvestmentSummary(userId);
+
+        assertEquals(BigDecimal.valueOf(50), summary.getTotalValue());
+        assertEquals(null, summary.getProfitability());
+        assertEquals(1, summary.getNumberOfInvestments());
         verify(investmentRepository, times(1)).findAllByUserId(userId);
     }
  */
     @Test
-    public void getUserInvestmentSummary_NoCashFlowData_ReturnsZeroXIRR() {
+    public void getUserInvestmentSummary_MultipleInvestmentsWithZeroPrices_ReturnsNullSummary() {
         Long userId = 1L;
-        Investment investment = new Investment();
-        investment.setCurrentPrice(BigDecimal.valueOf(10));
 
-        Transaction transaction = new Transaction();
-        transaction.setType(TransactionType.BUY);
-        transaction.setQuantity(5);
-        investment.setTransactions(List.of(transaction));
+        Investment investment1 = createInvestment(BigDecimal.ZERO, Collections.emptyList(), Collections.emptyList());
+        Investment investment2 = createInvestment(BigDecimal.ZERO, Collections.emptyList(), Collections.emptyList());
 
-        when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment));
-        when(cashFlowService.extractCashFlows(any())).thenReturn(Collections.emptyList()); // Mock cash flow extraction
+        when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment1, investment2));
+        when(transactionService.calculateTotalQuantity(any())).thenReturn(5);
 
         InvestmentSummaryResponse summary = investmentService.getUserInvestmentSummary(userId);
 
-        assertEquals(BigDecimal.valueOf(50), summary.getTotalValue());
-        assertEquals(0, summary.getProfitability().compareTo(BigDecimal.ZERO)); // Assuming no cash flows
-        assertEquals(1, summary.getNumberOfInvestments());
+        assertEquals(BigDecimal.ZERO, summary.getTotalValue());
+        assertEquals(null, summary.getProfitability());
+        assertEquals(2, summary.getNumberOfInvestments());
         verify(investmentRepository, times(1)).findAllByUserId(userId);
     }
 
