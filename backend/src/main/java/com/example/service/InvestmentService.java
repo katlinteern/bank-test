@@ -4,7 +4,6 @@ import static com.example.util.XirrCalculator.calculateXirr;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,43 +53,42 @@ public class InvestmentService {
             return new InvestmentSummaryResponse(BigDecimal.ZERO, BigDecimal.ZERO, 0);
         }
 
-        return calculateInvestmentSummary(investments);
+        return createInvestmentSummary(investments);
     }
 
     public InvestmentResponse createInvestmentResponse(Investment investment) {
-        InvestmentSummaryResponse summary = calculateInvestmentSummary(List.of(investment));
+        InvestmentSummaryResponse summary = createInvestmentSummary(List.of(investment));
         int quantity = transactionService.calculateTotalQuantity(investment.getTransactions());
-        
+
         return new InvestmentResponse(investment.getId(), investment.getName(), summary.getTotalValue(),
                 summary.getProfitability(), investment.getCurrentPrice(), quantity);
     }
 
-    private InvestmentSummaryResponse calculateInvestmentSummary(List<Investment> investments) {
-        BigDecimal totalValue = BigDecimal.ZERO;
-        List<CashFlowData> cashFlowData = new ArrayList<>();
+    private InvestmentSummaryResponse createInvestmentSummary(List<Investment> investments) {
+        BigDecimal totalValue = investments.stream().map(this::calculateTotalValue).reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<CashFlowData> cashFlowData = cashFlowService.collectAndFilterCashFlows(investments);
 
-        for (Investment investment : investments) {
-            totalValue = totalValue.add(calculateTotalValue(investment));
-            cashFlowData.addAll(cashFlowService.collectCashFlowData(investment));
-        }
+        BigDecimal totalXirr = calculateTotalXirr(cashFlowData);
+        BigDecimal profitability = calculateProfitability(totalXirr);
 
-        cashFlowData = cashFlowService.filterAndSortCashFlowData(cashFlowData);
+        return new InvestmentSummaryResponse(totalValue, profitability, investments.size());
+    }
 
-        BigDecimal totalXirr;
+    private BigDecimal calculateTotalXirr(List<CashFlowData> cashFlowData) {
         try {
-            totalXirr = cashFlowData.isEmpty() ? BigDecimal.ZERO
+            return cashFlowData.isEmpty() ? BigDecimal.ZERO
                     : calculateXirr(cashFlowService.extractDates(cashFlowData),
                             cashFlowService.extractCashFlows(cashFlowData));
         } catch (IllegalArgumentException e) {
             logger.warn("XIRR calculation failed: {}", e.getMessage());
-            totalXirr = null;
+            return null;
         }
+    }
 
-        BigDecimal profitability = Optional.ofNullable(totalXirr)
+    private BigDecimal calculateProfitability(BigDecimal totalXirr) {
+        return Optional.ofNullable(totalXirr)
                 .map(xirr -> xirr.multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP))
                 .orElse(null);
-
-        return new InvestmentSummaryResponse(totalValue, profitability, investments.size());
     }
 
     public BigDecimal calculateTotalValue(Investment investment) {
@@ -99,5 +97,4 @@ public class InvestmentService {
 
         return currentPrice.multiply(BigDecimal.valueOf(totalQuantity));
     }
-
 }

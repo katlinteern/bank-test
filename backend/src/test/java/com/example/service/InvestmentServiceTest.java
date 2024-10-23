@@ -144,4 +144,61 @@ class InvestmentServiceTest {
 
         assertEquals(BigDecimal.valueOf(50), totalValue);
     }
+
+/*     @Test
+    public void getUserInvestmentSummary_MultipleInvestments_ReturnsCorrectSummary() {
+        Long userId = 1L;
+
+        Investment investment1 = new Investment();
+        investment1.setCurrentPrice(BigDecimal.valueOf(10));
+        investment1.setUserId(userId);
+
+        Transaction transaction1 = new Transaction();
+        transaction1.setInvestment(investment1);
+        transaction1.setType(TransactionType.BUY);
+        transaction1.setQuantity(5);
+        investment1.setTransactions(List.of(transaction1));
+
+        Investment investment2 = new Investment();
+        investment2.setCurrentPrice(BigDecimal.valueOf(20));
+        investment2.setUserId(userId);
+
+        Transaction transaction2 = new Transaction();
+        transaction2.setInvestment(investment2);
+        transaction2.setType(TransactionType.BUY);
+        transaction2.setQuantity(3);
+        investment2.setTransactions(List.of(transaction2));
+
+        when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment1, investment2));
+
+        InvestmentSummaryResponse summary = investmentService.getUserInvestmentSummary(userId);
+
+        assertEquals(BigDecimal.valueOf(90), summary.getTotalValue()); // (10*5 + 20*3)
+        assertEquals(0, summary.getProfitability().compareTo(BigDecimal.ZERO)); // Assuming no dividends
+        assertEquals(2, summary.getNumberOfInvestments());
+        verify(investmentRepository, times(1)).findAllByUserId(userId);
+    }
+ */
+    @Test
+    public void getUserInvestmentSummary_NoCashFlowData_ReturnsZeroXIRR() {
+        Long userId = 1L;
+        Investment investment = new Investment();
+        investment.setCurrentPrice(BigDecimal.valueOf(10));
+
+        Transaction transaction = new Transaction();
+        transaction.setType(TransactionType.BUY);
+        transaction.setQuantity(5);
+        investment.setTransactions(List.of(transaction));
+
+        when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment));
+        when(cashFlowService.extractCashFlows(any())).thenReturn(Collections.emptyList()); // Mock cash flow extraction
+
+        InvestmentSummaryResponse summary = investmentService.getUserInvestmentSummary(userId);
+
+        assertEquals(BigDecimal.valueOf(50), summary.getTotalValue());
+        assertEquals(0, summary.getProfitability().compareTo(BigDecimal.ZERO)); // Assuming no cash flows
+        assertEquals(1, summary.getNumberOfInvestments());
+        verify(investmentRepository, times(1)).findAllByUserId(userId);
+    }
+
 }

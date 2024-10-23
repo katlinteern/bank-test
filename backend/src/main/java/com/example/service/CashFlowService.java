@@ -20,9 +20,22 @@ public class CashFlowService {
     @Autowired
     private TransactionService transactionService;
 
+    public List<CashFlowData> collectAndFilterCashFlows(List<Investment> investments) {
+        List<CashFlowData> cashFlowData = new ArrayList<>();
+
+        for (Investment investment : investments) {
+            cashFlowData.addAll(collectCashFlowData(investment));
+        }
+
+        return cashFlowData.stream()
+                .filter(this::isValidCashFlow)
+                .sorted(Comparator.comparing(CashFlowData::getDate))
+                .collect(Collectors.toList());
+    }
+
     public List<CashFlowData> collectCashFlowData(Investment investment) {
         if (!isCurrentPriceValid(investment)) {
-            return new ArrayList<>(); 
+            return new ArrayList<>();
         }
 
         List<CashFlowData> cashFlowData = new ArrayList<>();
@@ -31,13 +44,6 @@ public class CashFlowService {
         addCurrentValueToCashFlowData(investment, cashFlowData);
 
         return cashFlowData;
-    }
-
-    public List<CashFlowData> filterAndSortCashFlowData(List<CashFlowData> cashFlowData) {
-        return cashFlowData.stream()
-                .filter(this::isValidCashFlow)
-                .sorted(Comparator.comparing(CashFlowData::getDate))
-                .collect(Collectors.toList());
     }
 
     public List<Instant> extractDates(List<CashFlowData> cashFlowDataList) {
