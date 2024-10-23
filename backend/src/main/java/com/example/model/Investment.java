@@ -9,6 +9,7 @@ import java.util.List;
 @Entity
 @Table(name = "investments")
 public class Investment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,17 +23,12 @@ public class Investment {
     @Column(nullable = false)
     private BigDecimal currentPrice = BigDecimal.ZERO;
 
-    @OneToMany(mappedBy = "investment", cascade = CascadeType.PERSIST) // Avoid removing transactions on investment removal
-    private List<Transaction> transactions = new ArrayList<>(); // Changed to List for order preservation
+    @OneToMany(mappedBy = "investment", cascade = CascadeType.PERSIST)
+    private List<Transaction> transactions = new ArrayList<>();
 
     @OneToMany(mappedBy = "investment", cascade = CascadeType.PERSIST)
-    private List<Dividend> dividends = new ArrayList<>(); // Changed to List for consistency
+    private List<Dividend> dividends = new ArrayList<>();
 
-    // Default constructor
-    public Investment() {
-    }
-
-    // Getters and setters
     public Long getId() {
         return id;
     }

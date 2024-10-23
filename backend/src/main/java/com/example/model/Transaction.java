@@ -33,15 +33,6 @@ public class Transaction {
     @JoinColumn(name = "investment_id", referencedColumnName = "id", nullable = false)
     private Investment investment;
 
-    public Transaction() {}
-
-    public Transaction(Investment investment, BigDecimal price, Instant timestamp) {
-        this.investment = investment;
-        this.price = price;
-        this.timestamp = timestamp;
-    }
-
-    // Getters and setters
     public Long getId() {
         return id;
     }
