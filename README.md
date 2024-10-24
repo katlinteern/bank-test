@@ -18,8 +18,12 @@ $ cd bank-test/
 
 # Start project
 $ docker-compose up
-``` 
-Check that all Docker containers are running and that spring-boot-app container has finished creating data. 
 
-App will be available on http://localhost:3000/
+# Restart spring-boot-app container if needed (mysql container takes longer to start, causing spring-boot-app container to stop)
+$ docker-compose up spring-boot-app
+``` 
+Check that all Docker containers are running and that spring-boot-app container has finished creating data.
+Spring-boot-app logs should show: "Finished generating data."
+
+The app will be available on http://localhost:3000/
 
