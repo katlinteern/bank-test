@@ -17,7 +17,7 @@ public class XirrCalculator {
     private static final double SMALL_DERIVATIVE = 1e-4;
     private static final int DAYS_IN_YEAR = 365;
 
-    public static BigDecimal calculateXirr(List<Instant> dates, List<BigDecimal> cashFlows) {
+    public BigDecimal calculateXirr(List<Instant> dates, List<BigDecimal> cashFlows) {
         logger.info("Starting XIRR calculation...");
 
         if (!Validator.isXirrInputValid(dates, cashFlows)) {

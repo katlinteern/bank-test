@@ -1,6 +1,9 @@
 package com.example.util;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,6 +16,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class XirrCalculatorTest {
+
+    @InjectMocks
+    private XirrCalculator xirrCalculator;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void testCalculateXirr_ValidInput() {
@@ -29,7 +40,7 @@ class XirrCalculatorTest {
         );
 
         BigDecimal expectedXirr = new BigDecimal("0.05393920142");
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertNotNull(result);
         assertEquals(expectedXirr.setScale(10, RoundingMode.HALF_UP),
@@ -42,7 +53,7 @@ class XirrCalculatorTest {
         List<Instant> dates = Arrays.asList(now.minusSeconds(86400), now, now.plusSeconds(86400));
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(-1000), new BigDecimal(0), new BigDecimal(1100));
 
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertNotNull(result);
         assertTrue(result.compareTo(BigDecimal.ZERO) > 0);
@@ -54,7 +65,7 @@ class XirrCalculatorTest {
         List<Instant> dates = Arrays.asList(now, now.plusSeconds(86400));
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(-1000), new BigDecimal(100));
 
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertTrue(result.compareTo(BigDecimal.ZERO) < 0, "XIRR should be negative due to net loss");
     }
@@ -65,7 +76,7 @@ class XirrCalculatorTest {
         List<Instant> dates = Arrays.asList(now.minus(30, ChronoUnit.DAYS), now.plus(365, ChronoUnit.DAYS));
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal("-1000000000"), new BigDecimal("1500000000"));
 
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertNotNull(result);
         assertTrue(result.compareTo(BigDecimal.ZERO) > 0);
@@ -77,7 +88,7 @@ class XirrCalculatorTest {
         List<Instant> dates = Arrays.asList(now, now.plus(1, ChronoUnit.DAYS));
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal("-1000"), new BigDecimal("1001"));
 
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertNotNull(result);
         assertTrue(result.compareTo(BigDecimal.ZERO) > 0);
@@ -89,7 +100,7 @@ class XirrCalculatorTest {
         List<Instant> dates = Arrays.asList(now.minus(3650, ChronoUnit.DAYS), now);
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal("-1000"), new BigDecimal("15000"));
 
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertNotNull(result);
         assertTrue(result.compareTo(BigDecimal.ZERO) > 0);
@@ -99,9 +110,10 @@ class XirrCalculatorTest {
     void testCalculateXirr_RepeatedDates() {
         Instant now = Instant.now();
         List<Instant> dates = Arrays.asList(now, now, now.plus(365, ChronoUnit.DAYS));
-        List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal("-1000"), new BigDecimal("-500"), new BigDecimal("1600"));
+        List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal("-1000"), new BigDecimal("-500"),
+                new BigDecimal("1600"));
 
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertNotNull(result);
         assertTrue(result.compareTo(BigDecimal.ZERO) > 0);
@@ -113,7 +125,7 @@ class XirrCalculatorTest {
         List<Instant> dates = Arrays.asList(now.minus(365, ChronoUnit.DAYS), now);
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal("-1000"), new BigDecimal("1200"));
 
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertNotNull(result);
         assertTrue(result.compareTo(BigDecimal.ZERO) > 0);
@@ -122,10 +134,12 @@ class XirrCalculatorTest {
     @Test
     void testCalculateXirr_SkewedCashFlows() {
         Instant now = Instant.now();
-        List<Instant> dates = Arrays.asList(now.minus(365, ChronoUnit.DAYS), now.plus(30, ChronoUnit.DAYS), now.plus(365, ChronoUnit.DAYS));
-        List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal("-10000"), new BigDecimal("100"), new BigDecimal("10500"));
+        List<Instant> dates = Arrays.asList(now.minus(365, ChronoUnit.DAYS), now.plus(30, ChronoUnit.DAYS),
+                now.plus(365, ChronoUnit.DAYS));
+        List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal("-10000"), new BigDecimal("100"),
+                new BigDecimal("10500"));
 
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertNotNull(result);
         assertTrue(result.compareTo(BigDecimal.ZERO) > 0);
@@ -137,7 +151,7 @@ class XirrCalculatorTest {
         List<Instant> dates = Arrays.asList(now, now.plus(365, ChronoUnit.DAYS), now.plus(730, ChronoUnit.DAYS));
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(-1000), new BigDecimal(500), new BigDecimal(600));
 
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertNotNull(result);
         assertTrue(result.compareTo(BigDecimal.ZERO) > 0, "XIRR should be positive due to net positive cash flow");
@@ -149,7 +163,7 @@ class XirrCalculatorTest {
         List<Instant> dates = Arrays.asList(now, now.plus(1, ChronoUnit.DAYS), now.plus(2, ChronoUnit.DAYS));
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(-1000), new BigDecimal(500), new BigDecimal(600));
 
-        BigDecimal result = XirrCalculator.calculateXirr(dates, cashFlows);
+        BigDecimal result = xirrCalculator.calculateXirr(dates, cashFlows);
 
         assertNotNull(result);
         assertTrue(result.compareTo(BigDecimal.ZERO) > 0, "XIRR should be positive due to net cash flow");
@@ -162,7 +176,7 @@ class XirrCalculatorTest {
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(0), new BigDecimal(0));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            XirrCalculator.calculateXirr(dates, cashFlows);
+            xirrCalculator.calculateXirr(dates, cashFlows);
         });
 
         assertEquals("Invalid input: dates or cash flows are invalid.", exception.getMessage());
@@ -175,7 +189,7 @@ class XirrCalculatorTest {
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal("1000"), new BigDecimal("2000"));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            XirrCalculator.calculateXirr(dates, cashFlows);
+            xirrCalculator.calculateXirr(dates, cashFlows);
         });
 
         assertEquals("Invalid input: dates or cash flows are invalid.", exception.getMessage());
@@ -188,7 +202,7 @@ class XirrCalculatorTest {
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(1000));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            XirrCalculator.calculateXirr(dates, cashFlows);
+            xirrCalculator.calculateXirr(dates, cashFlows);
         });
 
         assertEquals("Invalid input: dates or cash flows are invalid.", exception.getMessage());
@@ -201,7 +215,7 @@ class XirrCalculatorTest {
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(-1000), new BigDecimal(-100));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            XirrCalculator.calculateXirr(dates, cashFlows);
+            xirrCalculator.calculateXirr(dates, cashFlows);
         });
 
         assertEquals("Invalid input: dates or cash flows are invalid.", exception.getMessage());
@@ -213,7 +227,7 @@ class XirrCalculatorTest {
         List<BigDecimal> cashFlows = Collections.emptyList();
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            XirrCalculator.calculateXirr(dates, cashFlows);
+            xirrCalculator.calculateXirr(dates, cashFlows);
         });
 
         assertEquals("Invalid input: dates or cash flows are invalid.", exception.getMessage());
@@ -225,7 +239,7 @@ class XirrCalculatorTest {
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(-1000));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            XirrCalculator.calculateXirr(dates, cashFlows);
+            xirrCalculator.calculateXirr(dates, cashFlows);
         });
 
         assertEquals("Invalid input: dates or cash flows are invalid.", exception.getMessage());
@@ -238,7 +252,7 @@ class XirrCalculatorTest {
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(-1000), new BigDecimal(0));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            XirrCalculator.calculateXirr(dates, cashFlows);
+            xirrCalculator.calculateXirr(dates, cashFlows);
         });
 
         assertEquals("Invalid input: dates or cash flows are invalid.", exception.getMessage());
@@ -251,7 +265,7 @@ class XirrCalculatorTest {
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(0), new BigDecimal(0), new BigDecimal(0));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            XirrCalculator.calculateXirr(dates, cashFlows);
+            xirrCalculator.calculateXirr(dates, cashFlows);
         });
 
         assertEquals("Invalid input: dates or cash flows are invalid.", exception.getMessage());
@@ -264,7 +278,7 @@ class XirrCalculatorTest {
         List<BigDecimal> cashFlows = Arrays.asList(new BigDecimal(-1000), new BigDecimal(0));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            XirrCalculator.calculateXirr(dates, cashFlows);
+            xirrCalculator.calculateXirr(dates, cashFlows);
         });
 
         assertEquals("Invalid input: dates or cash flows are invalid.", exception.getMessage());

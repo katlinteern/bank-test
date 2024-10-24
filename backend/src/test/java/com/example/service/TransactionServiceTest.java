@@ -23,6 +23,15 @@ class TransactionServiceTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
     }
+    
+    private Transaction createTransaction(TransactionType type, BigDecimal price, int quantity, BigDecimal fee) {
+        Transaction transaction = new Transaction();
+        transaction.setType(type);
+        transaction.setPrice(price);
+        transaction.setQuantity(quantity);
+        transaction.setFee(fee);
+        return transaction;
+    }
 
     @Test
     public void calculateCashFlow_BuyTransaction_ReturnsNegativeCashFlow() {
@@ -90,12 +99,4 @@ class TransactionServiceTest {
         assertEquals(2, totalQuantity); // 5 - 3 = 2
     }
 
-    private Transaction createTransaction(TransactionType type, BigDecimal price, int quantity, BigDecimal fee) {
-        Transaction transaction = new Transaction();
-        transaction.setType(type);
-        transaction.setPrice(price);
-        transaction.setQuantity(quantity);
-        transaction.setFee(fee);
-        return transaction;
-    }
 }
