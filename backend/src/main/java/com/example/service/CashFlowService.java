@@ -71,6 +71,8 @@ public class CashFlowService {
         });
     }
 
+    // SOLUTION to Advanced Level II (Optional)
+    // Adding dividends to general cashFlowData List for xirr calculation
     private void processDividends(Investment investment, List<CashFlowData> cashFlowData) {
         investment.getDividends().forEach(dividend -> {
             cashFlowData.add(new CashFlowData(dividend.getAmount(), dividend.getTimestamp()));

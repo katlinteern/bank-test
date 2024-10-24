@@ -11,6 +11,8 @@ import com.example.model.Transaction;
 @Service
 public class TransactionService {
 
+        // SOLUTION to Advanced Level I (Optional)
+        // Subtracting fee from the overall value of the transaction
         public BigDecimal calculateCashFlow(Transaction transaction) {
                 if (transaction == null) {
                         return BigDecimal.ZERO;
