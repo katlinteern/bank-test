@@ -24,6 +24,7 @@ $ docker-compose up spring-boot-app
 ``` 
 Check that all Docker containers are running and that spring-boot-app container has finished creating data.
 Spring-boot-app logs should show: "Finished generating data."
+The process will take some time.
 
 The app will be available on http://localhost:3000/
 
