@@ -2,60 +2,60 @@
 
 /* Vertical Navbar */
 .navbar-vertical {
-    height: 100vh; /* Full height */
-    background-color: #394a57; /* Lighter gray for a fresh look */
-    padding-top: 40px; /* Padding at the top */
-    position: fixed; /* Fixed to the left side */
+    height: 100vh; 
+    background-color: #394a57; 
+    padding-top: 40px;
+    position: fixed; 
     left: 0;
-    width: 220px; /* Width for the vertical navbar */
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Light drop shadow effect */
+    width: 220px; 
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); 
 }
 
 .navbar-vertical .navbar-brand {
-    color: #333333; /* Dark gray for the brand */
-    font-size: 24px; /* Slightly larger for prominence */
+    color: #333333; 
+    font-size: 24px;
     font-weight: bold;
     padding-left: 20px;
-    margin-bottom: 40px; /* Space below brand */
+    margin-bottom: 40px; 
 }
 
 .navbar-vertical .nav-item {
-    margin: 20px 0; /* More spacing between links */
+    margin: 20px 0; 
 }
 
 .navbar-vertical .nav-link {
     display: block;
-    color: #ece9e9; /* Darker gray for nav links */
+    color: #ece9e9;
     font-size: 18px;
     padding: 12px 20px;
 }
 
 .navbar-vertical .nav-link:hover {
-    background-color: #d9d9d9; /* Slightly darker gray on hover */
-    color: #000000; /* Black text for contrast on hover */
+    background-color: #d9d9d9; 
+    color: #000000; 
     cursor: pointer;
 }
 
 .navbar-vertical .nav-link.active {
-    background-color: #b2b2b2; /* Medium gray for active links */
+    background-color: #b2b2b2; 
     font-weight: bold;
-    color: #000000; /* Black text for visibility */
+    color: #000000;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .navbar-vertical {
-        width: 100%; /* Full width on mobile */
-        height: auto; /* Automatic height */
-        position: relative; /* Position relative for mobile */
+        width: 100%; 
+        height: auto; 
+        position: relative;
     }
 
     .navbar-vertical .navbar-brand {
-        text-align: center; /* Center brand on mobile */
-        margin-bottom: 20px; /* Less space below brand */
+        text-align: center; 
+        margin-bottom: 20px; 
     }
 
     .navbar-vertical .nav-item {
-        margin: 10px 0; /* Reduced spacing on mobile */
+        margin: 10px 0; 
     }
 }

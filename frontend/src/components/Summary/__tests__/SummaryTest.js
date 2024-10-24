@@ -6,17 +6,15 @@ jest.mock('../../../services/ApiService');
 
 describe('Summary', () => {
   beforeAll(() => {
-    // Mock console.error globally for all tests in this suite
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(() => {
-    // Restore the original console.error after all tests in this suite
     console.error.mockRestore();
   });
 
   beforeEach(() => {
-    jest.resetAllMocks(); // Ensure that all mocks are reset before each test
+    jest.resetAllMocks(); 
   });
 
   test('renders summary cards when data is fetched', async () => {
@@ -31,7 +29,6 @@ describe('Summary', () => {
       render(<Summary />);
     });
 
-    // Wait for the summary data to load and be displayed
     await waitFor(() => {
       expect(screen.getByText(/total value/i)).toBeInTheDocument();
       expect(screen.getByText(/profitability/i)).toBeInTheDocument();

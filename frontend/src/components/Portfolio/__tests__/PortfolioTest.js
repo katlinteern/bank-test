@@ -1,14 +1,12 @@
 import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import Portfolio from '../Portfolio';
-import { getUserInvestments } from '../../../services/ApiService'; // Ensure correct path
+import { getUserInvestments } from '../../../services/ApiService'; 
 
-// Mock the child components to avoid rendering their full implementations
 jest.mock('../../Summary/Summary', () => () => <div data-testid="summary">Mock Summary</div>);
 jest.mock('../../Overview/Overview', () => () => <div data-testid="overview">Mock Overview</div>);
 jest.mock('../../Details/Details', () => () => <div data-testid="details">Mock Details</div>);
 
-// Mock the API service
 jest.mock('../../../services/ApiService');
 
 describe('Portfolio Component', () => {
@@ -20,12 +18,10 @@ describe('Portfolio Component', () => {
   beforeEach(() => {
     getUserInvestments.mockClear();
 
-    // Mock console.error to avoid cluttering the test output
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    // Restore console.error after each test
     console.error.mockRestore();
   });
 
@@ -36,7 +32,6 @@ describe('Portfolio Component', () => {
       render(<Portfolio />);
     });
 
-    // Check if the summary section is rendered
     expect(screen.getByTestId('summary')).toBeInTheDocument();
   });
 
@@ -47,7 +42,6 @@ describe('Portfolio Component', () => {
       render(<Portfolio />);
     });
 
-    // Wait for investments to be fetched and state to update
     await waitFor(() => {
       expect(getUserInvestments).toHaveBeenCalledTimes(1);
       expect(screen.getByTestId('overview')).toBeInTheDocument();
@@ -62,7 +56,6 @@ describe('Portfolio Component', () => {
       render(<Portfolio />);
     });
 
-    // Wait to ensure no investments were fetched
     await waitFor(() => {
       expect(getUserInvestments).toHaveBeenCalledTimes(1);
       expect(screen.queryByTestId('overview')).not.toBeInTheDocument();
@@ -77,7 +70,6 @@ describe('Portfolio Component', () => {
       render(<Portfolio />);
     });
 
-    // Wait for the error to be caught and handled
     await waitFor(() => {
       expect(getUserInvestments).toHaveBeenCalledTimes(1);
       expect(screen.queryByTestId('overview')).not.toBeInTheDocument();

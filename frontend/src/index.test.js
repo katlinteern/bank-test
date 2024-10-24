@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react'; // Ensure screen is imported
+import { render, screen } from '@testing-library/react'; 
 import App from './App';
 
 describe('Index', () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import './SummaryCard.css'; // Separate CSS for card styling
+import './SummaryCard.css'; 
 
 export default function SummaryCard({ icon, name, value }) {
   return (

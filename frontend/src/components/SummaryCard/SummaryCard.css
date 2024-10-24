@@ -19,20 +19,17 @@
     height: 160px;
   }
   
-  /* Hover effect for cards */
   .summary-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   }
   
-  /* Card Icon */
   .card-icon {
     font-size: 40px; 
     color: #3498db; 
     margin-bottom: 10px;
   }
   
-  /* Card Text */
   .summary-card p {
     font-size: 16px;
     color: #333; 
