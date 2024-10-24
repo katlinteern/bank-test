@@ -3,7 +3,7 @@ const baseURL = process.env.REACT_APP_API_BASE_URL;
 
 const apiUrl = `${baseURL}/api/investments`;
 
-// usedId simulation
+// userId simulation
 const userId = 1; 
 
 export const getUserInvestments = async () => {
