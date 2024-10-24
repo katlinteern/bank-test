@@ -58,7 +58,7 @@ public class DividendGenerator {
     }
 
     private Instant getDividendStart(Investment investment) {
-        return investment.getTransactions().get(0).getTimestamp(); // Safe to access first element now
+        return investment.getTransactions().get(0).getTimestamp();
     }
 
     private int determineDividendCount(Investment investment) {
