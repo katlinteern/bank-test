@@ -2,6 +2,7 @@ package com.example.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
@@ -70,9 +71,9 @@ class InvestmentServiceTest {
         return transaction;
     }
 
-    private Dividend createDividend(BigDecimal amount) {
+    private Dividend createDividend() {
         Dividend dividend = new Dividend();
-        dividend.setAmount(amount);
+        dividend.setAmount(BigDecimal.valueOf(10));
         dividend.setTimestamp(Instant.now().minusSeconds(3600)); // 1 hour ago
         return dividend;
     }
@@ -91,9 +92,10 @@ class InvestmentServiceTest {
     }
 
     @Test
-    public void getUserInvestments_UserExistsWithInvestments_ReturnsInvestments() {
+    public void getUserInvestments_WithOneInvestment_ReturnsInvestments() {
         Long userId = 1L;
-        Investment investment = createInvestment(BigDecimal.valueOf(12), List.of(createTransaction()), Collections.emptyList());
+        Investment investment = createInvestment(BigDecimal.valueOf(12), List.of(createTransaction()),
+                Collections.emptyList());
 
         when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment));
         when(transactionService.calculateTotalQuantity(any())).thenReturn(5);
@@ -110,10 +112,10 @@ class InvestmentServiceTest {
     }
 
     @Test
-    public void getUserInvestments_WithDividends_ReturnsInvestmentsWithDividends() {
+    public void getUserInvestments_WithTransactionsAndDividends_ReturnsInvestments() {
         Long userId = 1L;
-        Dividend dividend = createDividend(BigDecimal.valueOf(100));
-        Investment investment = createInvestment(BigDecimal.valueOf(12), List.of(createTransaction()), List.of(dividend));
+        Investment investment = createInvestment(BigDecimal.valueOf(12), List.of(createTransaction()),
+                List.of(createDividend()));
 
         when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment));
         when(transactionService.calculateTotalQuantity(any())).thenReturn(5);
@@ -125,6 +127,41 @@ class InvestmentServiceTest {
         assertEquals(BigDecimal.valueOf(60), investments.get(0).getTotalValue()); // Total value (12 * 5)
         assertEquals(investment.getCurrentPrice(), investments.get(0).getCurrentPrice());
         assertEquals(5, investments.get(0).getQuantity());
+
+        verify(investmentRepository, times(1)).findAllByUserId(userId);
+    }
+
+    @Test
+    public void getUserInvestments_WithTwoInvestments_ReturnsInvestments() {
+        Long userId = 1L;
+
+        Investment investment1 = createInvestment(
+                BigDecimal.valueOf(15),
+                List.of(createTransaction()),
+                List.of(createDividend()));
+
+        Investment investment2 = createInvestment(
+                BigDecimal.valueOf(20),
+                List.of(createTransaction()),
+                Collections.emptyList());
+
+        when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment1, investment2));
+        when(transactionService.calculateTotalQuantity(investment1.getTransactions())).thenReturn(5);
+        when(transactionService.calculateTotalQuantity(investment2.getTransactions())).thenReturn(3);
+
+        List<InvestmentResponse> investments = investmentService.getUserInvestments(userId);
+
+        assertEquals(2, investments.size());
+
+        assertEquals(investment1.getName(), investments.get(0).getName());
+        assertEquals(BigDecimal.valueOf(75), investments.get(0).getTotalValue());
+        assertEquals(investment1.getCurrentPrice(), investments.get(0).getCurrentPrice());
+        assertEquals(5, investments.get(0).getQuantity());
+
+        assertEquals(investment2.getName(), investments.get(1).getName());
+        assertEquals(BigDecimal.valueOf(60), investments.get(1).getTotalValue());
+        assertEquals(investment2.getCurrentPrice(), investments.get(1).getCurrentPrice());
+        assertEquals(3, investments.get(1).getQuantity());
 
         verify(investmentRepository, times(1)).findAllByUserId(userId);
     }
@@ -146,9 +183,8 @@ class InvestmentServiceTest {
     @Test
     public void getUserInvestmentSummary_WithOneInvestmentAndDividend_ReturnsCorrectSummary() {
         Long userId = 1L;
-        Transaction transaction = createTransaction();
-        Dividend dividend = createDividend(BigDecimal.valueOf(100));
-        Investment investment = createInvestment(BigDecimal.valueOf(10), List.of(transaction), List.of(dividend));
+        Investment investment = createInvestment(BigDecimal.valueOf(10), List.of(createTransaction()),
+                List.of(createDividend()));
 
         when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment));
         when(transactionService.calculateTotalQuantity(any())).thenReturn(5);
@@ -165,8 +201,10 @@ class InvestmentServiceTest {
     @Test
     public void getUserInvestmentSummary_WithTwoInvestments_ReturnsCorrectSummary() {
         Long userId = 1L;
-        Investment investment1 = createInvestment(BigDecimal.valueOf(10), Collections.emptyList(), Collections.emptyList());
-        Investment investment2 = createInvestment(BigDecimal.valueOf(20), Collections.emptyList(), Collections.emptyList());
+        Investment investment1 = createInvestment(BigDecimal.valueOf(10), Collections.emptyList(),
+                Collections.emptyList());
+        Investment investment2 = createInvestment(BigDecimal.valueOf(20), Collections.emptyList(),
+                Collections.emptyList());
 
         when(investmentRepository.findAllByUserId(userId)).thenReturn(List.of(investment1, investment2));
         when(transactionService.calculateTotalQuantity(any())).thenReturn(5);
@@ -182,7 +220,8 @@ class InvestmentServiceTest {
     // Test for calculateTotalValue
     @Test
     public void calculateTotalValue_WithValidInvestment_ReturnsCorrectTotal() {
-        Investment investment = createInvestment(BigDecimal.valueOf(20), List.of(createTransaction()), Collections.emptyList());
+        Investment investment = createInvestment(BigDecimal.valueOf(20), List.of(createTransaction()),
+                Collections.emptyList());
 
         when(transactionService.calculateTotalQuantity(investment.getTransactions())).thenReturn(5);
 
@@ -213,11 +252,12 @@ class InvestmentServiceTest {
     public void calculateProfitability_WithValidXirr_ReturnsProfitability() {
         List<CashFlowData> cashFlowData = List.of(
                 new CashFlowData(BigDecimal.valueOf(-100), Instant.now()),
-                new CashFlowData(BigDecimal.valueOf(150), Instant.now().minusSeconds(3600))
-        );
+                new CashFlowData(BigDecimal.valueOf(150), Instant.now().minusSeconds(3600)));
 
-        when(cashFlowService.extractDates(cashFlowData)).thenReturn(List.of(Instant.now(), Instant.now().minusSeconds(3600)));
-        when(cashFlowService.extractCashFlows(cashFlowData)).thenReturn(List.of(BigDecimal.valueOf(-100), BigDecimal.valueOf(150)));
+        when(cashFlowService.extractDates(cashFlowData))
+                .thenReturn(List.of(Instant.now(), Instant.now().minusSeconds(3600)));
+        when(cashFlowService.extractCashFlows(cashFlowData))
+                .thenReturn(List.of(BigDecimal.valueOf(-100), BigDecimal.valueOf(150)));
         when(xirrCalculator.calculateXirr(anyList(), anyList())).thenReturn(BigDecimal.valueOf(0.1)); // XIRR of 10%
 
         BigDecimal result = investmentService.calculateProfitability(cashFlowData);
@@ -231,12 +271,14 @@ class InvestmentServiceTest {
     public void calculateProfitability_WithXirrException_ReturnsNull() {
         List<CashFlowData> cashFlowData = List.of(
                 new CashFlowData(BigDecimal.valueOf(-100), Instant.now()),
-                new CashFlowData(BigDecimal.valueOf(150), Instant.now().minusSeconds(3600))
-        );
+                new CashFlowData(BigDecimal.valueOf(150), Instant.now().minusSeconds(3600)));
 
-        when(cashFlowService.extractDates(cashFlowData)).thenReturn(List.of(Instant.now(), Instant.now().minusSeconds(3600)));
-        when(cashFlowService.extractCashFlows(cashFlowData)).thenReturn(List.of(BigDecimal.valueOf(-100), BigDecimal.valueOf(150)));
-        when(xirrCalculator.calculateXirr(anyList(), anyList())).thenThrow(new IllegalArgumentException("Invalid data"));
+        when(cashFlowService.extractDates(cashFlowData))
+                .thenReturn(List.of(Instant.now(), Instant.now().minusSeconds(3600)));
+        when(cashFlowService.extractCashFlows(cashFlowData))
+                .thenReturn(List.of(BigDecimal.valueOf(-100), BigDecimal.valueOf(150)));
+        when(xirrCalculator.calculateXirr(anyList(), anyList()))
+                .thenThrow(new IllegalArgumentException("Invalid data"));
 
         BigDecimal result = investmentService.calculateProfitability(cashFlowData);
 

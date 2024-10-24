@@ -2,12 +2,14 @@ package com.example.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+@Component
 public class XirrCalculator {
 
     private static final Logger logger = LoggerFactory.getLogger(XirrCalculator.class);
