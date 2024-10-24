@@ -33,6 +33,8 @@ class TransactionServiceTest {
         return transaction;
     }
 
+    // Tests for calculateCashFlow
+
     @Test
     public void calculateCashFlow_BuyTransaction_ReturnsNegativeCashFlow() {
         Transaction transaction = createTransaction(TransactionType.BUY, BigDecimal.valueOf(10), 5, BigDecimal.valueOf(1));
@@ -66,6 +68,8 @@ class TransactionServiceTest {
         BigDecimal cashFlow = transactionService.calculateCashFlow(null);
         assertEquals(BigDecimal.ZERO, cashFlow);
     }
+
+    // Tests for calculateTotalQuantity
 
     @Test
     public void calculateTotalQuantity_EmptyTransactionList_ReturnsZero() {

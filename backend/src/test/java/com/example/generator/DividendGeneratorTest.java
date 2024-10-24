@@ -35,74 +35,6 @@ public class DividendGeneratorTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    public void generateDividends_forFundInvestment_createsFourDividends() {
-        Investment fundInvestment = createMockInvestment("Fund A", 100, 10);
-        dividendGenerator.generateDividends(fundInvestment);
-        verify(dividendRepository, times(4)).save(any(Dividend.class)); // 4 dividends for fund
-    }
-
-    @Test
-    public void generateDividends_forCompanyInvestment_createsOneDividend() {
-        Investment companyInvestment = createMockInvestment("Company A", 100, 10);
-        dividendGenerator.generateDividends(companyInvestment);
-        verify(dividendRepository, times(1)).save(any(Dividend.class)); // 1 dividend for company
-    }
-
-    @Test
-    public void generateDividends_forEmptyInvestment_doesNotCreateDividends() {
-        Investment emptyInvestment = new Investment();
-        emptyInvestment.setName("Empty Investment");
-        emptyInvestment.setCurrentPrice(BigDecimal.valueOf(100));
-        emptyInvestment.setUserId(1L);
-        emptyInvestment.setTransactions(Collections.emptyList()); 
-        
-        dividendGenerator.generateDividends(emptyInvestment);
-        
-        verify(dividendRepository, never()).save(any(Dividend.class));
-    }
-
-    @Test
-    public void generateDividends_withZeroQuantityTransaction_doesNotCreateDividends() {
-        Investment investment = createMockInvestment("Fund A", 100, 0); 
-
-        dividendGenerator.generateDividends(investment);
-
-        verify(dividendRepository, never()).save(any(Dividend.class)); 
-    }
-
-    @Test
-    public void generateDividends_withZeroInvestmentPrice_doesNotCreateDividends() {
-        Investment investment = createMockInvestment("Fund A", 0, 10); 
-
-        dividendGenerator.generateDividends(investment);
-
-        verify(dividendRepository, never()).save(any(Dividend.class)); 
-    }
-
-    @Test
-    public void generateDividends_withNullAttributes_doesNotCreateDividends() {
-        Investment investment = new Investment();
-        investment.setName("Fund A");
-        investment.setCurrentPrice(BigDecimal.ZERO); // Set to 0, since null is not allowed
-        investment.setTransactions(null); 
-
-        dividendGenerator.generateDividends(investment); 
-
-        verify(dividendRepository, never()).save(any(Dividend.class));
-    }
-
-    @Test
-    public void generateDividends_correctDividendAmountCalculation() {
-        Investment investment = createMockInvestment("Fund A", 100, 10);
-
-        when(transactionService.calculateTotalQuantity(any())).thenReturn(10); 
-
-        dividendGenerator.generateDividends(investment);
-
-        verify(dividendRepository, times(4)).save(any(Dividend.class)); 
-    }
-
     private Investment createMockInvestment(String name, double price, int quantity) {
         if (price < 0) {
             price = 0; 
@@ -120,4 +52,60 @@ public class DividendGeneratorTest {
         return investment;
     }
 
+    @Test
+    public void generateDividends_ForFundInvestment_CreatesFourDividends() {
+        Investment fundInvestment = createMockInvestment("Fund A", 100, 10);
+        dividendGenerator.generateDividends(fundInvestment);
+        verify(dividendRepository, times(4)).save(any(Dividend.class)); // 4 dividends for fund
+    }
+
+    @Test
+    public void generateDividends_ForCompanyInvestment_CreatesOneDividend() {
+        Investment companyInvestment = createMockInvestment("Company A", 100, 10);
+        dividendGenerator.generateDividends(companyInvestment);
+        verify(dividendRepository, times(1)).save(any(Dividend.class)); // 1 dividend for company
+    }
+
+    @Test
+    public void generateDividends_ForEmptyInvestment_DoesNotCreateDividends() {
+        Investment emptyInvestment = new Investment();
+        emptyInvestment.setName("Empty Investment");
+        emptyInvestment.setCurrentPrice(BigDecimal.valueOf(100));
+        emptyInvestment.setUserId(1L);
+        emptyInvestment.setTransactions(Collections.emptyList()); 
+        
+        dividendGenerator.generateDividends(emptyInvestment);
+        
+        verify(dividendRepository, never()).save(any(Dividend.class));
+    }
+
+    @Test
+    public void generateDividends_WithZeroQuantityTransaction_DoesNotCreateDividends() {
+        Investment investment = createMockInvestment("Fund A", 100, 0); 
+
+        dividendGenerator.generateDividends(investment);
+
+        verify(dividendRepository, never()).save(any(Dividend.class)); 
+    }
+
+    @Test
+    public void generateDividends_WithZeroInvestmentPrice_DoesNotCreateDividends() {
+        Investment investment = createMockInvestment("Fund A", 0, 10); 
+
+        dividendGenerator.generateDividends(investment);
+
+        verify(dividendRepository, never()).save(any(Dividend.class)); 
+    }
+
+    @Test
+    public void generateDividends_WithNullAttributes_DoesNotCreateDividends() {
+        Investment investment = new Investment();
+        investment.setName("Fund A");
+        investment.setCurrentPrice(BigDecimal.ZERO); 
+        investment.setTransactions(null); 
+
+        dividendGenerator.generateDividends(investment); 
+
+        verify(dividendRepository, never()).save(any(Dividend.class));
+    }
 }

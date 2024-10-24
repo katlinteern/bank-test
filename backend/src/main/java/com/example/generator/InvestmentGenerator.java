@@ -45,10 +45,6 @@ public class InvestmentGenerator {
     }
 
     public Investment createInvestment(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Investment name cannot be null or empty.");
-        }
-    
         Investment investment = new Investment();
         investment.setName(name);
         

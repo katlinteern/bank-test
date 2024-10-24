@@ -15,7 +15,7 @@ public class DataGeneratorTest {
     private DataGenerator dataGenerator;
 
     @Mock
-    private InvestmentGenerator investmentGenerator; // Mock the InvestmentGenerator
+    private InvestmentGenerator investmentGenerator; 
 
     @Mock
     private InvestmentRepository investmentRepository;
@@ -33,10 +33,8 @@ public class DataGeneratorTest {
 
     @Test
     public void run_shouldCallGenerateInvestmentData() {
-        // Call the run method
         dataGenerator.run();
 
-        // Verify that generateInvestmentData on the InvestmentGenerator is called once
         verify(investmentGenerator, times(1)).generateInvestmentData();
     }
 }

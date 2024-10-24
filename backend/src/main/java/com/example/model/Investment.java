@@ -50,6 +50,9 @@ public class Investment {
     }
 
     public void setName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Investment name cannot be null or empty.");
+        }
         this.name = name;
     }
 
@@ -58,7 +61,6 @@ public class Investment {
     }
 
     public void setCurrentPrice(BigDecimal currentPrice) {
-        // Check if the currentPrice is negative
         if (currentPrice == null || currentPrice.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Price cannot be negative or null");
         }

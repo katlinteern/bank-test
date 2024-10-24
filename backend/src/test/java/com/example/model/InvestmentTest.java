@@ -51,6 +51,30 @@ public class InvestmentTest {
     }
 
     @Test
+    public void testSetName_NullValue_ThrowsIllegalArgumentException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            investment.setName(null);
+        });
+        assertEquals("Investment name cannot be null or empty.", exception.getMessage());
+    }
+
+    @Test
+    public void testSetName_EmptyValue_ThrowsIllegalArgumentException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            investment.setName(""); // Empty string
+        });
+        assertEquals("Investment name cannot be null or empty.", exception.getMessage());
+    }
+
+    @Test
+    public void testSetName_WhitespaceValue_ThrowsIllegalArgumentException() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            investment.setName("   "); // Only whitespace
+        });
+        assertEquals("Investment name cannot be null or empty.", exception.getMessage());
+    }
+
+    @Test
     public void testGetCurrentPrice() {
         assertEquals(BigDecimal.valueOf(100), investment.getCurrentPrice());
     }

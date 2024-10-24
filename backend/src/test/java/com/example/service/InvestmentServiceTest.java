@@ -78,7 +78,7 @@ class InvestmentServiceTest {
         return dividend;
     }
 
-    // Test for getUserInvestments
+    // Tests for getUserInvestments
     @Test
     public void getUserInvestments_UserExistsNoInvestments_ReturnsEmptyList() {
         Long userId = 1L;
@@ -166,7 +166,7 @@ class InvestmentServiceTest {
         verify(investmentRepository, times(1)).findAllByUserId(userId);
     }
 
-    // Test for getUserInvestmentSummary
+    // Tests for getUserInvestmentSummary
     @Test
     public void getUserInvestmentSummary_UserExistsNoInvestments_ReturnsEmptySummary() {
         Long userId = 1L;
@@ -217,7 +217,7 @@ class InvestmentServiceTest {
         verify(investmentRepository, times(1)).findAllByUserId(userId);
     }
 
-    // Test for calculateTotalValue
+    // Tests for calculateTotalValue
     @Test
     public void calculateTotalValue_WithValidInvestment_ReturnsCorrectTotal() {
         Investment investment = createInvestment(BigDecimal.valueOf(20), List.of(createTransaction()),
@@ -237,7 +237,7 @@ class InvestmentServiceTest {
         assertEquals(BigDecimal.ZERO, totalValue);
     }
 
-    // Test for calculateProfitability
+    // Tests for calculateProfitability
     @Test
     public void calculateProfitability_EmptyCashFlowData_ReturnsNull() {
         List<CashFlowData> emptyCashFlowData = Collections.emptyList();
