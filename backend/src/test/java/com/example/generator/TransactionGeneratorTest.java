@@ -30,8 +30,24 @@ public class TransactionGeneratorTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    private Investment createMockInvestment() {
+        Investment investment = new Investment();
+        investment.setName("Fund A");
+        investment.setCurrentPrice(BigDecimal.valueOf(100));
+        investment.setUserId(1L);
+        return investment;
+    }
+
+    private Investment createMockInvestmentWithPrice(BigDecimal price) {
+        Investment investment = new Investment();
+        investment.setName("Fund B");
+        investment.setCurrentPrice(price);
+        investment.setUserId(2L);
+        return investment;
+    }
+
     @Test
-    public void generateTransactions_whenCalled_createsExpectedNumberOfTransactions() {
+    public void generateTransactions_WhenCalled_CreatesExpectedNumberOfTransactions() {
         Investment mockInvestment = createMockInvestment();
 
         List<Transaction> transactions = transactionGenerator.generateTransactions(mockInvestment);
@@ -40,7 +56,7 @@ public class TransactionGeneratorTest {
     }
 
     @Test
-    public void generateTransactions_whenCalled_createsValidTransactionData() {
+    public void generateTransactions_WhenCalled_CreatesValidTransactionData() {
         Investment mockInvestment = createMockInvestment();
 
         List<Transaction> transactions = transactionGenerator.generateTransactions(mockInvestment);
@@ -56,7 +72,7 @@ public class TransactionGeneratorTest {
     }
 
     @Test
-    public void generateTransactions_whenCalled_createsValidBuyAndSellQuantities() {
+    public void generateTransactions_WhenCalled_CreatesValidBuyAndSellQuantities() {
         Investment mockInvestment = createMockInvestment();
 
         List<Transaction> transactions = transactionGenerator.generateTransactions(mockInvestment);
@@ -76,7 +92,7 @@ public class TransactionGeneratorTest {
     }
 
     @Test
-    public void generateTransactions_whenCalled_createsAtLeastOneTransaction() {
+    public void generateTransactions_WhenCalled_CreatesAtLeastOneTransaction() {
         Investment mockInvestment = createMockInvestment();
 
         List<Transaction> transactions = transactionGenerator.generateTransactions(mockInvestment);
@@ -85,7 +101,7 @@ public class TransactionGeneratorTest {
     }
 
     @Test
-    public void generateTransactions_whenCalled_createsValidTransactionFees() {
+    public void generateTransactions_WhenCalled_WreatesValidTransactionFees() {
         Investment mockInvestment = createMockInvestment();
 
         List<Transaction> transactions = transactionGenerator.generateTransactions(mockInvestment);
@@ -98,7 +114,7 @@ public class TransactionGeneratorTest {
     }
 
     @Test
-    public void generateTransactions_whenCalled_createsChronologicallyOrderedTimestamps() {
+    public void generateTransactions_WhenCalled_CreatesChronologicallyOrderedTimestamps() {
         Investment mockInvestment = createMockInvestment();
 
         List<Transaction> transactions = transactionGenerator.generateTransactions(mockInvestment);
@@ -115,7 +131,7 @@ public class TransactionGeneratorTest {
     }
 
     @Test
-    public void generateTransactions_withZeroPriceInvestment_shouldThrowException() {
+    public void generateTransactions_WithZeroPriceInvestment_ShouldThrowException() {
         Investment zeroPriceInvestment = createMockInvestmentWithPrice(BigDecimal.ZERO);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -126,7 +142,7 @@ public class TransactionGeneratorTest {
     }
 
     @Test
-    public void generateTransactions_withNegativePriceInvestment_shouldSetToMinimumPrice() {
+    public void generateTransactions_WithSmallPriceInvestment_ShouldSetToMinimumPrice() {
         Investment smallPriceInvestment = createMockInvestmentWithPrice(BigDecimal.valueOf(1));
 
         List<Transaction> transactions = transactionGenerator.generateTransactions(smallPriceInvestment);
@@ -137,19 +153,4 @@ public class TransactionGeneratorTest {
         }
     }
 
-    private Investment createMockInvestment() {
-        Investment investment = new Investment();
-        investment.setName("Fund A");
-        investment.setCurrentPrice(BigDecimal.valueOf(100));
-        investment.setUserId(1L);
-        return investment;
-    }
-
-    private Investment createMockInvestmentWithPrice(BigDecimal price) {
-        Investment investment = new Investment();
-        investment.setName("Fund B");
-        investment.setCurrentPrice(price);
-        investment.setUserId(2L);
-        return investment;
-    }
 }

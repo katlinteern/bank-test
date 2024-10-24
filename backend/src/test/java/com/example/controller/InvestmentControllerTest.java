@@ -31,6 +31,8 @@ public class InvestmentControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    // Tests for getInvestmentsByUserId
+
     @Test
     public void getInvestmentsByUserId_UserDoesNotExist_ReturnsNotFound() {
         Long userId = 2L;
@@ -64,6 +66,8 @@ public class InvestmentControllerTest {
         assertEquals(investments, response.getBody());
         verify(investmentService, times(1)).getUserInvestments(userId);
     }
+
+    // Tests for getUserInvestmentSummary
 
     @Test
     public void getUserInvestmentSummary_UserDoesNotExist_ReturnsNotFound() {

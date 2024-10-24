@@ -1,7 +1,6 @@
 package com.example.generator;
 
 import com.example.model.Investment;
-import com.example.model.Transaction;
 import com.example.repository.InvestmentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -70,7 +68,6 @@ class InvestmentGeneratorTest {
 
     @Test
     void createInvestment_EmptyName_ThrowsIllegalArgumentException() {
-        // Act & Assert
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             investmentGenerator.createInvestment("  ");
         });

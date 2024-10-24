@@ -36,7 +36,6 @@ public class TransactionGenerator {
     public List<Transaction> generateTransactions(Investment investment) {
         BigDecimal initialPrice = investment.getCurrentPrice();
         
-        // Validation: Handle zero or negative price investments
         if (initialPrice.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Investment price must be greater than zero.");
         }
